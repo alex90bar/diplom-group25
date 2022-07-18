@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  boot:
+    admin:
+      client:
+        enabled: true
+        instance:
+          service-url: http://microservice-person:8080
+
+  liquibase:
+    enabled: false
+    drop-first: false
+    change-log: classpath:database-person-changelog.xml
+
+  datasource:
+#    url: jdbc:postgresql://postgres:5432/skillbox
+    url: jdbc:postgresql://localhost:5432/skillbox
+#    username: person
+    username: postgres
+#    password: person
+    driverClassName: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        format_sql: true
+#        default_schema: person
+    open-in-view: false
