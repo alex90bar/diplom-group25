@@ -59,6 +59,19 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <!--добавил repackage т.к. jar не запускался, выдавал ошибку no main manifest attribute-->
+<!--                <configuration>-->
+<!--                    <mainClass>ru.skillbox.diplom.group25.microservice.post.Application</mainClass>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>repackage</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
