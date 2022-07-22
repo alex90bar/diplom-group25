@@ -26,12 +26,12 @@ public class PostService {
 
   private final PostRepository postRepository;
 
-  public void addNewPost(String publishDate, PostAddRq postAddRq){
+  public void addNewPost(String publishDate, PostAddRq postAddRq){ //TODO лучше убрать суфикс POST например create() дальше по аналогии
     Logger.getLogger(this.getClass().getCanonicalName()).info("addNewPost begins");
 
     //TODO Mapstruct PostRequest to PostEntity;
 
-    Post post = new Post();
+    Post post = new Post(); //TODO такое не буду пропускать)) делайте через mapstruct
     post.setAuthorId(1);
     post.setPostText(postAddRq.getPostText());
     post.setTitle(postAddRq.getTitle());
@@ -47,7 +47,7 @@ public class PostService {
     Logger.getLogger(this.getClass().getCanonicalName()).info("addNewPost ends");
   }
 
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true)  //TODO лучше вешать над классом, а здесь переопределять в методе
   public PostRs getPostById(String id){
     Logger.getLogger(this.getClass().getCanonicalName()).info("getPostById begins");
 

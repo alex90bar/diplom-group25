@@ -21,17 +21,17 @@ public class PostResourceImpl implements PostResource {
   private final PostService postService;
 
   @Override
-  public void addNewPost(String publishDate, PostAddRq postAddRq) {
+  public void addNewPost(String publishDate, PostAddRq postAddRq) { //TODO лучше убрать суфикс POST например create() тут из контекста понятно что с постами работаем
     postService.addNewPost(publishDate, postAddRq);
   }
 
   @Override
   public PostRs getPostById(String id) {
     return postService.getPostById(id);
-  }
+  } //TODO лучше убрать суфикс POST например getById()
 
   @Override
-  public PostRs deletePostById(String id) {
+  public PostRs deletePostById(String id) {  //TODO лучше убрать суфикс POST например delete()
     return postService.deletePostById(id);
   }
 

@@ -21,7 +21,7 @@ public interface PostResource {
 
   @PostMapping
   void addNewPost(@RequestParam(value = "publish_date",
-      defaultValue = "-1",
+      defaultValue = "-1", // TODO я думаю здесь это убрать и проверять на нул в сервисе
       required = false) String publishDate,
       @RequestBody PostAddRq postAddRq);
 
