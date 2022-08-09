@@ -6,7 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Post
@@ -14,7 +16,9 @@ import lombok.Data;
  * @author alex90bar
  */
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Table(name = "post")
 @Entity
 public class Post {
@@ -22,13 +26,13 @@ public class Post {
   @Id
   @Column(name = "id", nullable = false)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
   @Column(name = "time", nullable = false)
   private Long time;
 
   @Column(name = "author_id", nullable = false)
-  private Integer authorId;
+  private Long authorId;
 
   @Column(name = "title", nullable = false)
   private String title;

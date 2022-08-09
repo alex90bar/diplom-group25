@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit name="Default" defaultIncludeChangeLogFile="db/src/main/resources/database-post-changelog.xml" defaultSearchScope="Project">
+        <packages>
+          <package value="ru.skillbox.diplom.group25.microservice.post" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

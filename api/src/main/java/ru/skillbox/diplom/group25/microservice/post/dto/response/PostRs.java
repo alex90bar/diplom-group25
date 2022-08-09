@@ -1,7 +1,8 @@
-package ru.skillbox.diplom.group25.microservice.post.response;
+package ru.skillbox.diplom.group25.microservice.post.dto.response;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 
 /**
  * PostRs
@@ -17,7 +18,7 @@ public class PostRs {
   private Integer page;
   private Integer size;
   private Integer total;
-  private String data;  //TODO data = PostDto
+  private PostDto data;
 
 }
 

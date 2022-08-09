@@ -1,14 +1,12 @@
 package ru.skillbox.diplom.group25.microservice.post.resource;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import ru.skillbox.diplom.group25.microservice.post.request.PostAddRq;
-import ru.skillbox.diplom.group25.microservice.post.response.PostRs;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.request.PostAddRq;
+import ru.skillbox.diplom.group25.microservice.post.dto.request.PostSearchDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.response.PostRs;
 
 /**
  * PostResource
@@ -16,19 +14,22 @@ import ru.skillbox.diplom.group25.microservice.post.response.PostRs;
  * @author alex90bar
  */
 
-@RequestMapping("api/v1/post/")
+//TODO Добавь реквест маппинг с api/v1/post/
 public interface PostResource {
 
-  @PostMapping
-  void addNewPost(@RequestParam(value = "publish_date",
-      defaultValue = "-1", // TODO я думаю здесь это убрать и проверять на нул в сервисе
+  @PostMapping("api/v1/post/") //TODO а здесь убери api/v1/post/
+  @ResponseStatus(HttpStatus.CREATED)
+  void create(@RequestParam(value = "publish_date",
       required = false) String publishDate,
       @RequestBody PostAddRq postAddRq);
 
-  @GetMapping("{id}")
-  PostRs getPostById(@PathVariable String id);
+  @GetMapping("api/v1/post/{id}")
+  PostRs getById(@PathVariable("id") String id);
 
-  @DeleteMapping("{id}")
-  PostRs deletePostById(@PathVariable String id);
+  @DeleteMapping("api/v1/post/{id}")
+  PostRs deleteById(@PathVariable("id") String id);
+
+  @GetMapping("api/v1/post/search")
+  List<PostDto> search(@RequestBody PostSearchDto searchDto);
 
 }

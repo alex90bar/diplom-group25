@@ -1,7 +1,7 @@
 server:
   port: 8080
-
-
+  error:
+    include-message: always
 
 spring:
 
@@ -13,17 +13,24 @@ spring:
           service-url: http://microservice-person:8080
 
   liquibase:
-    enabled: false
+    enabled: true
     drop-first: false
-    change-log: classpath:database-person-changelog.xml
+    change-log: classpath:database-post-changelog.xml
+    default-schema: post
 
   datasource:
- #   url: jdbc:postgresql://postgres-db:5432/skillbox
-    url: jdbc:postgresql://localhost:5432/skillbox
+    url: jdbc:${DATABASE_URL:postgresql://localhost:5432/skillbox}
+#    url: jdbc:postgresql://localhost:5432/skillbox
 #    username: person
-    username: postgres
- #   password: person
+    username: ${USER_DB:post-service}
+    password: ${PASS_DB:post-service}
     driverClassName: org.postgresql.Driver
+
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema.sql
+
 
   jpa:
     show-sql: true
@@ -33,5 +40,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL10Dialect
         format_sql: true
-#        default_schema: person
+        default_schema: ${SCHEMA_DB:post}
     open-in-view: false
+
+rest:
+  password: ${ACCOUNT_SERVICE_PASS:428d34bc-e6ce-499a-9f20-934f554bdd8d}
+  account-service-host: ${ACCOUNT_SERVICE_HOST:http://130.61.44.151}
+
+
+

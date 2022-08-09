@@ -1,7 +1,7 @@
 create
-user "person";
+user "post-service";
 alter
-user "person" with PASSWORD 'person';
-create schema "person";
+user "post-service" with PASSWORD 'post-service';
+create schema "post";
 alter
-schema "person" owner to "person";
+schema "post" owner to "post-service";
