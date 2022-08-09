@@ -1,4 +1,4 @@
-package ru.skillbox.diplom.group25.microservice.post.request;
+package ru.skillbox.diplom.group25.microservice.post.dto.request;
 
 import lombok.Data;
 

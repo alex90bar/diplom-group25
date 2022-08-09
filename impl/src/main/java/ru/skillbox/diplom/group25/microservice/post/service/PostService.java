@@ -1,17 +1,26 @@
 package ru.skillbox.diplom.group25.microservice.post.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.logging.Logger;
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.equal;
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
+import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
+import ru.skillbox.diplom.group25.microservice.post.client.AccountServiceFeignClient;
+import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.request.PostAddRq;
+import ru.skillbox.diplom.group25.microservice.post.dto.request.PostSearchDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.response.PostRs;
+import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
+import ru.skillbox.diplom.group25.microservice.post.model.Post_;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
-import ru.skillbox.diplom.group25.microservice.post.request.PostAddRq;
-import ru.skillbox.diplom.group25.microservice.post.response.PostRs;
 
 /**
  * PostService
@@ -19,66 +28,78 @@ import ru.skillbox.diplom.group25.microservice.post.response.PostRs;
  * @author alex90bar
  */
 
+@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
-@Setter
 public class PostService {
 
   private final PostRepository postRepository;
+  private final PostMapper postMapper;
+  private final AccountServiceFeignClient accountServiceFeignClient;
 
-  public void addNewPost(String publishDate, PostAddRq postAddRq){ //TODO лучше убрать суфикс POST например create() дальше по аналогии
-    Logger.getLogger(this.getClass().getCanonicalName()).info("addNewPost begins");
+  public void create(String publishDate, PostAddRq postAddRq) {
+    log.info("create begins");
 
-    //TODO Mapstruct PostRequest to PostEntity;
+    if (publishDate == null) {
+      publishDate = "-1";
+    }
 
-    Post post = new Post(); //TODO такое не буду пропускать)) делайте через mapstruct
-    post.setAuthorId(1);
-    post.setPostText(postAddRq.getPostText());
-    post.setTitle(postAddRq.getTitle());
-    post.setImagePath(postAddRq.getPhotoUrl());
-    post.setIsBlocked(false);
-    post.setIsDelete(false);
-    post.setLikeAmount(0);
-    post.setTime(System.currentTimeMillis());
-    post.setMyLike(false);
+    Post post = postMapper.toPostFromPostAddRq(postAddRq);
 
     postRepository.save(post);
 
-    Logger.getLogger(this.getClass().getCanonicalName()).info("addNewPost ends");
+    log.info("create ends");
   }
 
-  @Transactional(readOnly = true)  //TODO лучше вешать над классом, а здесь переопределять в методе
-  public PostRs getPostById(String id){
-    Logger.getLogger(this.getClass().getCanonicalName()).info("getPostById begins");
+  @Transactional(readOnly = true)
+  public PostRs getById(String id) {
+    log.info("getById begins");
 
-    Integer postId = Integer.parseInt(id);
+    Long postId = Long.valueOf(id);
     Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new NotFoundException(id.toString()));
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
 
-    //TODO MapStruct Post to PostRs
+    //получаем accountDto из account-service по id через Feign
+    AccountDto accountDto = accountServiceFeignClient.getAccountById(post.getAuthorId()); //TODO использовать из аккаунта сервиса
 
-    PostRs postRs = new PostRs();
-    postRs.setData(post.getPostText());
+    //заворачиваем сущность в дто и вставляем accountDto
+    PostDto postDto = postMapper.toPostDtoFromPost(post);
+    postDto.setAuthor(accountDto);
+    PostRs postRs = postMapper.toPostRsFromPostDto(postDto);
 
-    Logger.getLogger(this.getClass().getCanonicalName()).info("getPostById ends");
+    log.info("getById ends");
 
     return postRs;
   }
 
-  public PostRs deletePostById(String id) {
-    Logger.getLogger(this.getClass().getCanonicalName()).info("deletePostById begins");
+  public PostRs deleteById(String id) {
+    log.info("deleteById begins");
 
-    Integer postId = Integer.parseInt(id);
+    Long postId = Long.valueOf(id);
     Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new NotFoundException(id.toString()));
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
 
     postRepository.delete(post);
 
-    //TODO MapStruct Post to PostRs
-
-    Logger.getLogger(this.getClass().getCanonicalName()).info("deletePostById ends");
+    log.info("deleteById ends");
 
     return new PostRs();
+  }
+
+  public List<PostDto> searchByDto(PostSearchDto dto) {
+    log.info("searchByDto begins: " + dto.toString());
+    return postRepository.findAll(getSpecification(dto))
+        .stream()
+        .map(postMapper::toPostDtoFromPost)
+        .collect(Collectors.toList());
+  }
+
+  public Specification<Post> getSpecification(PostSearchDto dto) {
+    return in(Post_.id, dto.getIds(), true)
+            .and(equal(Post_.postText, dto.getPostText(), true))
+            .and(equal(Post_.title, dto.getTitle(), true))
+            .and(in(Post_.authorId, dto.getAccountIds(), true));
   }
 }
 
