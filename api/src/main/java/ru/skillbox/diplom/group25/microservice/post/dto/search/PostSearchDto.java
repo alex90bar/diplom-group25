@@ -1,4 +1,4 @@
-package ru.skillbox.diplom.group25.microservice.post.dto.request;
+package ru.skillbox.diplom.group25.microservice.post.dto.search;
 
 import java.util.List;
 import lombok.Data;
@@ -15,6 +15,7 @@ public class PostSearchDto {
   private List<Long> accountIds;
   private String title;
   private String postText;
+  private Boolean withFriends;
 }
 
 

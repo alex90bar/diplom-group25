@@ -1,18 +1,19 @@
 spring:
   application:
-    name: microservice-person
+    name: microservice-post
 
   cloud:
     kubernetes:
+      enabled: true
       secrets:
         sources:
-          - name: microservice-person
+          - name: microservice-post
       config:
         sources:
-          - name: library-core
-          - name: microservice-person
+          - name: microservice-post
       reload:
         enabled: true
+
 
 management:
   endpoint:

@@ -1,22 +1,18 @@
 package ru.skillbox.diplom.group25.microservice.post.service;
 
-import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.equal;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
-import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
-import ru.skillbox.diplom.group25.microservice.post.client.AccountServiceFeignClient;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
-import ru.skillbox.diplom.group25.microservice.post.dto.request.PostAddRq;
-import ru.skillbox.diplom.group25.microservice.post.dto.request.PostSearchDto;
-import ru.skillbox.diplom.group25.microservice.post.dto.response.PostRs;
+import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.model.Post_;
@@ -36,71 +32,52 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final PostMapper postMapper;
-  private final AccountServiceFeignClient accountServiceFeignClient;
 
-  public void create(String publishDate, PostAddRq postAddRq) {
-    log.info("create begins");
-
-    if (publishDate == null) {
-      publishDate = "-1";
-    }
-
-    Post post = postMapper.toPostFromPostAddRq(postAddRq);
-
-    postRepository.save(post);
-
-    log.info("create ends");
+  @Transactional(readOnly = true)
+  public PostDto getById(Long id) {
+    log.info("getById begins, id: " + id);
+    Post post = postRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
+    log.info("getById ends ");
+    return postMapper.toDto(post);
   }
 
   @Transactional(readOnly = true)
-  public PostRs getById(String id) {
-    log.info("getById begins");
-
-    Long postId = Long.valueOf(id);
-    Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
-
-    //получаем accountDto из account-service по id через Feign
-    AccountDto accountDto = accountServiceFeignClient.getAccountById(post.getAuthorId()); //TODO использовать из аккаунта сервиса
-
-    //заворачиваем сущность в дто и вставляем accountDto
-    PostDto postDto = postMapper.toPostDtoFromPost(post);
-    postDto.setAuthor(accountDto);
-    PostRs postRs = postMapper.toPostRsFromPostDto(postDto);
-
-    log.info("getById ends");
-
-    return postRs;
+  public Page<PostDto> getAll(PostSearchDto searchDto, Pageable page) {
+    log.info("getAll begins " + searchDto); //свой id тебе должен передавать фронт
+    if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
+    } //TODO идем в друзья и получаем спискок id друзей и добавляем;
+    return postRepository.findAll(getSpecification(searchDto), page).map(postMapper::toDto);
   }
 
-  public PostRs deleteById(String id) {
+  public void create(PostDto dto) {
+    log.info("create begins post " + dto);
+    postRepository.save(postMapper.toEntity(dto));
+    log.info("create ends");
+  }
+
+  public void update(PostDto dto) { //TODO это метод put реализовать
+    log.info("update begins post " + dto);
+    Post post = postRepository.findById(dto.getId())
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getId()));
+    postMapper.updatePostFromDto(dto, post);
+    postRepository.save(post);
+    log.info("update ends");
+  }
+
+  public void deleteById(Long id) {
     log.info("deleteById begins");
-
-    Long postId = Long.valueOf(id);
-    Post post = postRepository.findById(postId)
+    Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
-
     postRepository.delete(post);
-
     log.info("deleteById ends");
-
-    return new PostRs();
-  }
-
-  public List<PostDto> searchByDto(PostSearchDto dto) {
-    log.info("searchByDto begins: " + dto.toString());
-    return postRepository.findAll(getSpecification(dto))
-        .stream()
-        .map(postMapper::toPostDtoFromPost)
-        .collect(Collectors.toList());
   }
 
   public Specification<Post> getSpecification(PostSearchDto dto) {
     return in(Post_.id, dto.getIds(), true)
-            .and(equal(Post_.postText, dto.getPostText(), true))
-            .and(equal(Post_.title, dto.getTitle(), true))
-            .and(in(Post_.authorId, dto.getAccountIds(), true));
+        .and(like(Post_.postText, dto.getPostText(), true))
+        .and(like(Post_.title, dto.getTitle(), true))
+        .and(in(Post_.authorId, dto.getAccountIds(), true));
   }
 }
-
 

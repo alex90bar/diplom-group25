@@ -11,11 +11,12 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class PostCommentDto {
+public class CommentDto {
 
   private Integer id;
+  private CommentType commentType;
   private Long time;
-  private AccountByIdDto author;
+  private Long author;
   private Integer parentId;
   private String commentText;
   private Integer postId;

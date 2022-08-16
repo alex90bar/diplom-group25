@@ -8,5 +8,6 @@
     <property name="schema" value="post"/>
 
     <include file="db/changelog/v1.0/changelog-v1.0-cumulative.xml" relativeToChangelogFile="true"/>
+  <include file="db/changelog/2022/08/15-01-changelog.xml"/>
 
 </databaseChangeLog>
