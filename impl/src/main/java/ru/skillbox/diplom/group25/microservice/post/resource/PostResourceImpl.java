@@ -1,15 +1,12 @@
 package ru.skillbox.diplom.group25.microservice.post.resource;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import ru.skillbox.diplom.group25.microservice.post.client.PostFeignClient;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
-import ru.skillbox.diplom.group25.microservice.post.dto.request.PostAddRq;
-import ru.skillbox.diplom.group25.microservice.post.dto.request.PostSearchDto;
-import ru.skillbox.diplom.group25.microservice.post.dto.response.PostRs;
+import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.service.PostService;
 
 /**
@@ -23,27 +20,32 @@ import ru.skillbox.diplom.group25.microservice.post.service.PostService;
 public class PostResourceImpl implements PostResource {
 
   private final PostService postService;
-  private final PostFeignClient feignClient;
 
   @Override
-  public void create(String publishDate, PostAddRq postAddRq) {
-    postService.create(publishDate, postAddRq);
+  public ResponseEntity<PostDto> getById(Long id) {
+    return ResponseEntity.ok(postService.getById(id));
   }
 
   @Override
-  public PostRs getById(String id) {
-    return postService.getById(id);
+  public ResponseEntity<Page<PostDto>> getAll(PostSearchDto searchDto, Pageable page) {
+    return ResponseEntity.ok(postService.getAll(searchDto, page));
   }
 
   @Override
-  public PostRs deleteById(String id) {
-    return postService.deleteById(id);
+  public void create(PostDto dto) {
+    postService.create(dto);
   }
 
   @Override
-  public List<PostDto> search(PostSearchDto searchDto) {
-    return postService.searchByDto(searchDto);
+  public void update(PostDto dto) {
+    postService.update(dto);
   }
+
+  @Override
+  public void deleteById(Long id) {
+    postService.deleteById(id);
+  }
+
 }
 
 

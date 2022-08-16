@@ -1,8 +1,9 @@
 package ru.skillbox.diplom.group25.microservice.post.dto;
 
+import java.time.ZonedDateTime;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * PostDto
@@ -14,18 +15,20 @@ import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
 @RequiredArgsConstructor
 public class PostDto {
 
-  private Integer id;
-  private Long time;
-  private AccountDto author;
+  private Long id;
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private ZonedDateTime time; //TODO измени если это время публикации
+  private Long author;
   private String title;
   private PostType type;
   private String postText;
   private Boolean isBlocked;
-  private PostCommentDto comments;
+  private CommentDto comments;
   private PostTagDto tags;
   private Integer likes;
   private Boolean myLike;
   private String photoUrl;
+  private ZonedDateTime publishDate;
 
 
 

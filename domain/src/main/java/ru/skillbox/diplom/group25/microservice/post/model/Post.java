@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.time.ZonedDateTime;
+
 /**
  * Post
  *
@@ -18,9 +20,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-@Table(name = "post")
 @Entity
+@Table(name = "post")
+@RequiredArgsConstructor
 public class Post {
 
   @Id
@@ -29,7 +31,7 @@ public class Post {
   private Long id;
 
   @Column(name = "time", nullable = false)
-  private Long time;
+  private ZonedDateTime time;
 
   @Column(name = "author_id", nullable = false)
   private Long authorId;
@@ -54,6 +56,9 @@ public class Post {
 
   @Column(name = "image_path", nullable = false)
   private String imagePath;
+
+  @Column(name = "publish_date")
+  private ZonedDateTime publishDate;
 
 }
 

@@ -20,8 +20,6 @@ spring:
 
   datasource:
     url: jdbc:${DATABASE_URL:postgresql://localhost:5432/skillbox}
-#    url: jdbc:postgresql://localhost:5432/skillbox
-#    username: person
     username: ${USER_DB:post-service}
     password: ${PASS_DB:post-service}
     driverClassName: org.postgresql.Driver
@@ -30,7 +28,6 @@ spring:
     init:
       mode: never
       schema-locations: classpath:schema.sql
-
 
   jpa:
     show-sql: true
@@ -44,7 +41,7 @@ spring:
     open-in-view: false
 
 rest:
-  password: ${ACCOUNT_SERVICE_PASS:428d34bc-e6ce-499a-9f20-934f554bdd8d}
+  password: ${ACCOUNT_SERVICE_PASS:903a76f0-f289-4957-8742-e42469641620}
   account-service-host: ${ACCOUNT_SERVICE_HOST:http://130.61.44.151}
 
 
