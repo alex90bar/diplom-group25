@@ -63,11 +63,10 @@ build_and_push_image:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - until docker info; do sleep 1; done
     - docker logout
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
-    - export DOCKER_HOST=$DOCKER_PORT
+    - export DOCKER_HOST=tcp://127.0.0.1:2375
     - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
     - docker push $BACK_IMAGE
   artifacts:
