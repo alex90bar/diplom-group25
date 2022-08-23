@@ -1,6 +1,7 @@
 package ru.skillbox.diplom.group25.microservice.post.dto;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,8 +24,8 @@ public class PostDto {
   private PostType type;
   private String postText;
   private Boolean isBlocked;
-  private CommentDto comments;
-  private PostTagDto tags;
+  private List<CommentDto> comments;
+  private List<PostTagDto> tags;
   private Integer likes;
   private Boolean myLike;
   private String photoUrl;

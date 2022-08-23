@@ -1,0 +1,87 @@
+image: maven:3.8.3-jdk-11
+
+variables:
+  MAVEN_LOCAL_REPOSITORY: "-Dmaven.repo.local=./.m2/repository"
+
+stages:
+  - build
+  - build_deploy_nexus
+  - build_and_push_image
+  - deploy_prod_server
+
+build:
+  stage: build
+  only:
+    - merge_requests
+    - cicd
+    - test_cicd
+  except:
+    - tags
+  script:
+    - mvn --settings maven-settings.xml clean package
+    - ls -la ./impl/target
+  artifacts:
+    paths:
+      - impl/target/*.jar
+  cache:
+    paths:
+      - ./impl/target
+      - ./domain/target
+
+build_deploy_nexus:
+  stage: build_deploy_nexus
+  only:
+    - master
+    - develop
+    - cicd
+  except:
+    - tags
+  script:
+    - mvn --settings maven-settings.xml clean deploy
+    - ls -la ./impl/target
+  artifacts:
+    paths:
+      - impl/target/*.jar
+  cache:
+    paths:
+      - ./impl/target
+      - ./domain/target
+
+build_and_push_image:
+  image: docker:latest
+  stage: build_and_push_image
+  only:
+    - develop
+    - main
+    - cicd
+    - test_cicd
+  except:
+    - tags
+  before_script:
+    - docker logout
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+  script:
+    - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
+    - docker push $BACK_IMAGE
+  artifacts:
+    paths:
+      - impl/target/*.jar
+
+deploy_prod_server:
+  stage: deploy_prod_server
+  only:
+    - develop
+    - main
+    - cicd
+  except:
+    - tags
+  before_script:
+    - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $PROD_HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh $PROD_USER@$PROD_HOST "kubectl rollout restart -n $NAMESPACE deployment $DEPLOYMENT_NAME"

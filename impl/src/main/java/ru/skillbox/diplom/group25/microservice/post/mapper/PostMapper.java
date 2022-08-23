@@ -1,6 +1,8 @@
 package ru.skillbox.diplom.group25.microservice.post.mapper;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -42,12 +44,12 @@ public interface PostMapper {
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updatePostFromDto(PostDto dto, @MappingTarget Post post);
 
-  default PostTagDto newPostTagDto(){
-    return new PostTagDto();
+  default List<PostTagDto> newPostTagDto(){
+    return new ArrayList<>();
   }
 
-  default CommentDto newPostCommentDto(){
-    return new CommentDto();
+  default List<CommentDto> newPostCommentDto(){
+    return new ArrayList<>();
   }
 
   default ZonedDateTime newTime() {
