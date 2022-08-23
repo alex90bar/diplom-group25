@@ -48,7 +48,7 @@ build_deploy_nexus:
       - ./domain/target
 
 build_and_push_image:
-  image: docker:stable
+  image: docker:19.03.0
   stage: build_and_push_image
   only:
     - develop
