@@ -61,7 +61,7 @@ build_and_push_image:
     - docker logout
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
-    - docker build -f Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
+    - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
     - docker push $BACK_IMAGE
   artifacts:
     paths:
