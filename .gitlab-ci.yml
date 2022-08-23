@@ -6,6 +6,8 @@ variables:
 stages:
   - build
   - build_deploy_nexus
+  - deploy_dockerhub
+  - deploy_prod
 
 build:
   stage: build
