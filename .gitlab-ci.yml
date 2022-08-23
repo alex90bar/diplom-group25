@@ -48,7 +48,9 @@ build_deploy_nexus:
       - ./domain/target
 
 build_and_push_image:
-  image: docker:19.03.0
+  image: docker:latest
+  services:
+    - docker:dind
   stage: build_and_push_image
   only:
     - develop
@@ -58,10 +60,10 @@ build_and_push_image:
   except:
     - tags
   before_script:
-    - docker version
     - docker logout
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
+    - export DOCKER_HOST=$DOCKER_PORT
     - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
     - docker push $BACK_IMAGE
   artifacts:
