@@ -48,9 +48,14 @@ build_deploy_nexus:
       - ./domain/target
 
 build_and_push_image:
-  image: docker:latest
+  image: docker:stable
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: thedockerhost
+  variables:
+    DOCKER_HOST: tcp://thedockerhost:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: build_and_push_image
   only:
     - develop
