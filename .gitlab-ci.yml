@@ -49,7 +49,9 @@ build_deploy_nexus:
 
 build_and_push_image:
   image: docker:latest
-  stage: deploy_dockerhub
+  services:
+    - docker:dind
+  stage: build_and_push_image
   only:
     - develop
     - main
@@ -68,7 +70,7 @@ build_and_push_image:
       - impl/target/*.jar
 
 deploy_prod_server:
-  stage: deploy_prod
+  stage: deploy_prod_server
   only:
     - develop
     - main
