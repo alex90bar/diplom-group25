@@ -6,6 +6,8 @@ variables:
 stages:
   - build
   - build_deploy_nexus
+  - build_and_push_image
+  - deploy_prod_server
 
 build:
   stage: build
