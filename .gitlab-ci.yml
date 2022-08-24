@@ -6,8 +6,8 @@ variables:
 stages:
   - build
   - build_deploy_nexus
-  - build_and_push_image
-  - deploy_prod_server
+  - deploy_dockerhub
+  - deploy_prod
 
 build:
   stage: build
@@ -48,10 +48,8 @@ build_deploy_nexus:
       - ./domain/target
 
 build_and_push_image:
-  image: docker:latest
-  services:
-    - docker:dind
-  stage: build_and_push_image
+  image: docker:19.03.12
+  stage: deploy_dockerhub
   only:
     - develop
     - main
@@ -59,26 +57,23 @@ build_and_push_image:
     - test_cicd
   except:
     - tags
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker logout
-    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS https://index.docker.io/v1/
   script:
-    - export DOCKER_HOST=tcp://127.0.0.1:2375
-    - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
+    - docker build -f Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
     - docker push $BACK_IMAGE
   artifacts:
     paths:
       - impl/target/*.jar
 
 deploy_prod_server:
-  stage: deploy_prod_server
+  stage: deploy_prod
   only:
     - develop
     - main
     - cicd
+    - test_cicd
   except:
     - tags
   before_script:
