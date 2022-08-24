@@ -4,7 +4,6 @@ variables:
   MAVEN_LOCAL_REPOSITORY: "-Dmaven.repo.local=./.m2/repository"
 
 stages:
-  #- build
   - build_deploy_nexus
   - deploy_dockerhub
   - deploy_prod
