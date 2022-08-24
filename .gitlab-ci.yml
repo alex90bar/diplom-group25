@@ -4,6 +4,7 @@ variables:
   MAVEN_LOCAL_REPOSITORY: "-Dmaven.repo.local=./.m2/repository"
 
 stages:
+  - build
   - build_deploy_nexus
   - deploy_dockerhub
   - deploy_prod
@@ -46,7 +47,7 @@ build_deploy_nexus:
       - ./domain/target
 
 build_and_push_image:
-  image: docker:latest
+  image: docker:19.03.12
   stage: deploy_dockerhub
   only:
     - develop
@@ -56,9 +57,9 @@ build_and_push_image:
     - tags
   before_script:
     - docker logout
-    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS https://index.docker.io/v1/
   script:
-    - docker build -f impl/Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
+    - docker build -f Dockerfile --platform linux/arm64/v8 -t $BACK_IMAGE .
     - docker push $BACK_IMAGE
   artifacts:
     paths:
