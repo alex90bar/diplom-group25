@@ -3,6 +3,7 @@ package ru.skillbox.diplom.group25.microservice.post.service;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
+import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
@@ -31,6 +33,7 @@ import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 public class PostService {
 
   private final PostRepository postRepository;
+  private final CommentService commentService;
   private final PostMapper postMapper;
 
   @Transactional(readOnly = true)
@@ -38,8 +41,9 @@ public class PostService {
     log.info("getById begins, id: " + id);
     Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
+    List<CommentDto> comments = commentService.getAllByPostId(id);
     log.info("getById ends ");
-    return postMapper.toDto(post);
+    return postMapper.toDto(post, comments);
   }
 
   @Transactional(readOnly = true)
@@ -47,7 +51,11 @@ public class PostService {
     log.info("getAll begins " + searchDto); //свой id тебе должен передавать фронт
     if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
     } //TODO идем в друзья и получаем спискок id друзей и добавляем;
-    return postRepository.findAll(getSpecification(searchDto), page).map(postMapper::toDto);
+
+    return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
+      List<CommentDto> comments = commentService.getAllByPostId(post.getId());
+      return postMapper.toDto(post, comments);
+    });
   }
 
   public void create(PostDto dto) {
@@ -56,12 +64,11 @@ public class PostService {
     log.info("create ends");
   }
 
-  public void update(PostDto dto) { //TODO это метод put реализовать
+  public void update(PostDto dto) {
     log.info("update begins post " + dto);
     Post post = postRepository.findById(dto.getId())
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getId()));
     postMapper.updatePostFromDto(dto, post);
-    postRepository.save(post);
     log.info("update ends");
   }
 

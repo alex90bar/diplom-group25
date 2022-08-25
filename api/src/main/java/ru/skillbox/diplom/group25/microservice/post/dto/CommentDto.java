@@ -1,5 +1,7 @@
 package ru.skillbox.diplom.group25.microservice.post.dto;
 
+import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -13,17 +15,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentDto {
 
-  private Integer id;
+  private Long id;
   private CommentType commentType;
-  private Long time;
-  private Long author;
-  private Integer parentId;
+  private ZonedDateTime time;
+  private Long authorId;
+  private Long parentId;
   private String commentText;
-  private Integer postId;
+  private Long postId;
   private Boolean isBlocked;
-  private Integer likes;
+  private Boolean isDelete;
+  private Integer likeAmount;
   private Boolean myLike;
-  private String subComments;
+  private List<CommentDto> subComments;
+  private String imagePath;
 
 }
 

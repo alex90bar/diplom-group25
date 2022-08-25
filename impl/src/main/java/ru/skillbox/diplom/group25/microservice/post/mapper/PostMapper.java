@@ -23,24 +23,15 @@ import ru.skillbox.diplom.group25.microservice.post.model.Post;
 public interface PostMapper {
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "authorId", source = "author")
-  @Mapping(target = "isDelete", constant = "false")
-  @Mapping(target = "likeAmount", source = "likes")
-  @Mapping(target = "imagePath", source = "photoUrl")
+  @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "time", expression = "java(newTime())")
   Post toEntity(PostDto dto);
 
-  @Mapping(target = "author", source = "authorId")
   @Mapping(target = "type", constant = "POSTED")
-  @Mapping(target = "comments", expression = "java(newPostCommentDto())")
+  @Mapping(target = "comments", source = "comments")
   @Mapping(target = "tags", expression = "java(newPostTagDto())")
-  @Mapping(target = "likes", source = "likeAmount")
-  @Mapping(target = "photoUrl", source = "imagePath")
-  PostDto toDto(Post entity);
+  PostDto toDto(Post entity, List<CommentDto> comments);
 
-  @Mapping(target = "authorId", source = "author")
-  @Mapping(target = "likeAmount", source = "likes")
-  @Mapping(target = "imagePath", source = "photoUrl")
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updatePostFromDto(PostDto dto, @MappingTarget Post post);
 
