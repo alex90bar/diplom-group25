@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentType;
+import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.mapper.CommentMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Comment;
-import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.repository.CommentRepository;
+import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 
 /**
@@ -32,6 +31,7 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final PostRepository postRepository;
   private final CommentMapper mapper;
+  private final LikeRepository likeRepository;
 
   public void create(CommentDto dto) {
     log.info("create begins comment " + dto);
@@ -49,8 +49,19 @@ public class CommentService {
   @Transactional(readOnly = true)
   public List<CommentDto> getAllByPostId(Long id) {
     log.info("getAllByPostId begins, postId " + id);
+
+    //TODO: получаем из jwt-токена текущий userid
+    Long userId = 3L;
+
     List<CommentDto> comments = commentRepository.findAllByPostIdOrderByIdAsc(id)
-        .stream().map(mapper::toDto).collect(Collectors.toList());
+        .stream().map(comment -> {
+
+          // проверяем каждый комент на наличие лайка от текущего юзера
+          log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: " + userId + ", commentId: " + comment.getId());
+          Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.COMMENT, comment.getId());
+          return mapper.toDto(comment, myLike);
+        }).collect(Collectors.toList());
+
     //получаем все комменты на комменты
     getChildComments(comments);
     //удаляем дубликаты

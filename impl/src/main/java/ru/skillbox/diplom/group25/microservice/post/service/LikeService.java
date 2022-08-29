@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.mapper.LikeMapper;
@@ -27,8 +26,6 @@ public class LikeService {
   private final CommentService commentService;
   private final LikeMapper mapper;
 
-
-
 //    Проверяем, есть ли лайк в БД, если есть - то удаляем, если нет - то создаем.
 //    Пересчитываем количество лайков в соответствующем посте/коменте.
   public void create(LikeDto dto) {
@@ -50,6 +47,7 @@ public class LikeService {
     }
     log.info("create ends");
   }
+
 }
 
 

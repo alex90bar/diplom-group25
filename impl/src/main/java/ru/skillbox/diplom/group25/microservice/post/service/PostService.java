@@ -13,11 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.model.Post_;
+import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 
 /**
@@ -34,16 +36,26 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final CommentService commentService;
+  private final LikeRepository likeRepository;
   private final PostMapper postMapper;
 
   @Transactional(readOnly = true)
   public PostDto getById(Long id) {
     log.info("getById begins, id: " + id);
+
+    //TODO: получаем из jwt-токена текущий userid
+    Long userId = 3L;
+
     Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
     List<CommentDto> comments = commentService.getAllByPostId(id);
+
+    // проверяем, ставил ли лайк текущий юзер
+    log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: " + userId + ", postId: " + id);
+    Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, id);
+
     log.info("getById ends ");
-    return postMapper.toDto(post, comments);
+    return postMapper.toDto(post, comments, myLike);
   }
 
   @Transactional(readOnly = true)
@@ -52,9 +64,17 @@ public class PostService {
     if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
     } //TODO идем в друзья и получаем спискок id друзей и добавляем;
 
+    //TODO: получаем из jwt-токена текущий userid
+    Long userId = 3L;
+
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
       List<CommentDto> comments = commentService.getAllByPostId(post.getId());
-      return postMapper.toDto(post, comments);
+
+      // проверяем, ставил ли лайк текущий юзер
+      log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: " + userId + ", postId: " + post.getId());
+      Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, post.getId());
+
+      return postMapper.toDto(post, comments, myLike);
     });
   }
 

@@ -30,7 +30,8 @@ public interface PostMapper {
   @Mapping(target = "type", constant = "POSTED")
   @Mapping(target = "comments", source = "comments")
   @Mapping(target = "tags", expression = "java(newPostTagDto())")
-  PostDto toDto(Post entity, List<CommentDto> comments);
+  @Mapping(target = "myLike", source = "myLike")
+  PostDto toDto(Post entity, List<CommentDto> comments, Boolean myLike);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updatePostFromDto(PostDto dto, @MappingTarget Post post);
