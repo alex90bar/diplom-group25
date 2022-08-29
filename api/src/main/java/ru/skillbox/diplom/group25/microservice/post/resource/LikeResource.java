@@ -18,7 +18,7 @@ import ru.skillbox.diplom.group25.microservice.post.dto.LikeDto;
 @RequestMapping("api/v1/post/likes")
 public interface LikeResource {
 
-  @PutMapping
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   void create(@RequestBody LikeDto dto);
 
