@@ -86,5 +86,21 @@ public class PostService {
         .and(like(Post_.title, dto.getTitle(), true))
         .and(in(Post_.authorId, dto.getAccountIds(), true));
   }
+
+  public void dislike(Long itemId) {
+    log.info("dislike begins, postId: " + itemId);
+    Post post = postRepository.findById(itemId)
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));;
+    post.setLikeAmount(post.getLikeAmount() - 1);
+    log.info("dislike ends");
+  }
+
+  public void setLike(Long itemId) {
+    log.info("setLike begins, postId: " + itemId);
+    Post post = postRepository.findById(itemId)
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));;
+    post.setLikeAmount(post.getLikeAmount() + 1);
+    log.info("setLike ends");
+  }
 }
 

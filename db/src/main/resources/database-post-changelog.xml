@@ -10,5 +10,6 @@
     <include file="db/changelog/v1.0/changelog-v1.0-cumulative.xml" relativeToChangelogFile="true"/>
   <include file="db/changelog/2022/08/15-01-changelog.xml"/>
   <include file="db/changelog/2022/08/25-01-changelog.xml"/>
+  <include file="db/changelog/2022/08/29-01-changelog.xml"/>
 
 </databaseChangeLog>

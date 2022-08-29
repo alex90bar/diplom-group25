@@ -86,6 +86,22 @@ public class CommentService {
     mapper.updateCommentFromDto(dto, comment);
     log.info("update ends");
   }
+
+  public void dislike(Long itemId) {
+    log.info("dislike begins, commentId: " + itemId);
+    Comment comment = commentRepository.findById(itemId)
+        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));;
+    comment.setLikeAmount(comment.getLikeAmount() - 1);
+    log.info("dislike ends");
+  }
+
+  public void setLike(Long itemId) {
+    log.info("setLike begins, commentId: " + itemId);
+    Comment comment = commentRepository.findById(itemId)
+        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));;
+    comment.setLikeAmount(comment.getLikeAmount() + 1);
+    log.info("setLike ends");
+  }
 }
 
 
