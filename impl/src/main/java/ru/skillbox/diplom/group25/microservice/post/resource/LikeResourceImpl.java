@@ -22,6 +22,11 @@ public class LikeResourceImpl implements LikeResource{
   public void create(LikeDto dto) {
     likeService.create(dto);
   }
+
+  @Override
+  public void delete(LikeDto dto) {
+    likeService.delete(dto);
+  }
 }
 
 

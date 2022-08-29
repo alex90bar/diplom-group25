@@ -44,7 +44,7 @@ public class PostService {
     log.info("getById begins, id: " + id);
 
     //TODO: получаем из jwt-токена текущий userid
-    Long userId = 3L;
+    Long userId = 1L;
 
     Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
@@ -65,7 +65,7 @@ public class PostService {
     } //TODO идем в друзья и получаем спискок id друзей и добавляем;
 
     //TODO: получаем из jwt-токена текущий userid
-    Long userId = 3L;
+    Long userId = 1L;
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
       List<CommentDto> comments = commentService.getAllByPostId(post.getId());
