@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import ru.skillbox.diplom.group25.library.core.annotation.EnableSecurity;
 
 /**
  * NewClass
@@ -14,6 +15,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 
 
+@EnableSecurity
 @EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class,
