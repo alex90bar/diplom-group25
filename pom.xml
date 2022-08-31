@@ -21,7 +21,7 @@
         <dependency>
             <groupId>ru.skillbox.diplom.group25</groupId>
             <artifactId>library-core</artifactId>
-            <version>1.0.0-20220830.145618-16</version>
+            <version>1.0.0-20220831.150158-17</version>
         </dependency>
         <dependency>
             <groupId>ru.skillbox.diplom.group25</groupId>
