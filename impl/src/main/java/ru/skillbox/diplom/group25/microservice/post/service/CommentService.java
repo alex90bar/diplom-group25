@@ -35,13 +35,20 @@ public class CommentService {
 
   public void create(CommentDto dto) {
     log.info("create begins comment " + dto);
+
+    //проверяем наличие поста в базе
     postRepository.findById(dto.getPostId())
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getPostId()));
-    //если это комент на комент, проверяем наличие родительского комента в БД
+
+    //если это комент на комент, проверяем наличие родительского комента в БД и ограничиваем создание коммента на коммент 2 уровнями
     if (dto.getParentId() != null) {
-      if (!commentRepository.existsById(dto.getParentId()))
-        throw new NotFoundException("Comment not found with parentId: " + dto.getParentId());
+      Comment comment = commentRepository.findById(dto.getParentId())
+          .orElseThrow(() -> new NotFoundException("Comment not found with parentId: " + dto.getParentId()));
+      if (comment.getParentId() > 0){
+        throw new NotFoundException("Cannot create subsubcomment for comment");
+      }
     }
+
     commentRepository.save(mapper.toEntity(dto));
     log.info("create ends");
   }
