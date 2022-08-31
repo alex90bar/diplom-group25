@@ -18,7 +18,7 @@ import ru.skillbox.diplom.group25.library.core.annotation.EnableSecurity;
 
 @EnableOpenFeign
 @EnableSecurity
-@EnableFeignClients
+//@EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class,
     ManagementWebSecurityAutoConfiguration.class}) //отключение Security через exclude
