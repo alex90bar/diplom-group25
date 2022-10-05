@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,6 +46,9 @@ public class PostService {
   private final CommentService commentService;
   private final LikeRepository likeRepository;
   private final PostMapper postMapper;
+
+  @Value(value = "${rest.websocket_uri}")
+  private String socketUri;
 
   @Transactional(readOnly = true)
   public PostDto getById(Long id) {
@@ -107,7 +111,7 @@ public class PostService {
           public void afterConnectionEstablished(WebSocketSession session) {
             log.info("established connection - " + session);
           }
-        }, headers, URI.create("ws://localhost:8080/user")).get();
+        }, headers, URI.create(socketUri)).get();
 
 
           try {
