@@ -3,6 +3,7 @@ package ru.skillbox.diplom.group25.microservice.post.service;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
+import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.client.WebSocketClient;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.webjars.NotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
@@ -81,6 +88,41 @@ public class PostService {
   public void create(PostDto dto) {
     log.info("create begins post " + dto);
     postRepository.save(postMapper.toEntity(dto));
+
+      try {
+        WebSocketClient webSocketClient = new StandardWebSocketClient();
+
+        final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        headers.add("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiLQkNC70LXQutGB0LDQ"
+            + "vdC00YAiLCJpZCI6NiwiZXhwIjoxOTc4MzYzNTA3LCJlbWFpbCI6ImFsZXg5MGJhckBnbWFpbC5jb20iLCJyb2xlcyI6IlVTRVIifQ.SrWNrjcmNX"
+            + "3l4HCuhvSL44IvNlg9MsWAW4vebK20y-4");
+
+        WebSocketSession webSocketSession = webSocketClient.doHandshake(new TextWebSocketHandler() {
+          @Override
+          public void handleTextMessage(WebSocketSession session, TextMessage message) {
+            log.info("received message - " + message.getPayload());
+          }
+
+          @Override
+          public void afterConnectionEstablished(WebSocketSession session) {
+            log.info("established connection - " + session);
+          }
+        }, headers, URI.create("ws://localhost:8080/user")).get();
+
+
+          try {
+            TextMessage message = new TextMessage("Testing web socket message!");
+            webSocketSession.sendMessage(message);
+            log.info("sent message - " + message.getPayload());
+          } catch (Exception e) {
+            log.error("Exception while sending a message", e);
+          }
+
+
+    }  catch (Exception e) {
+        log.error("Exception while accessing websockets", e);
+      }
+
     log.info("create ends");
   }
 
