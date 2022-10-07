@@ -17,6 +17,7 @@ public interface LikeMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "time", expression = "java(newTime())")
+  @Mapping(target = "itemId", source = "item_id")
   Like toEntity (LikeDto dto);
 
   default ZonedDateTime newTime() {
