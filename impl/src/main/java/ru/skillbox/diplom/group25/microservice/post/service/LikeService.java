@@ -32,6 +32,8 @@ public class LikeService {
     log.info("create begins " + dto);
     //TODO: получаем из jwt-токена текущий userid
     Long userId = 1L;
+    dto.setAuthorId(userId);
+
     if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())){
       likeRepository.save(mapper.toEntity(dto));
       if (dto.getType().equals(LikeType.POST)){

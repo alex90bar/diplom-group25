@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
@@ -20,24 +21,24 @@ import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
  * @author alex90bar
  */
 
-//TODO Добавь реквест маппинг с api/v1/post/
+@RequestMapping("api/v1/post")
 public interface PostResource {
 
-  @GetMapping("api/v1/post/{id}")
+  @GetMapping("/{id}")
   ResponseEntity<PostDto> getById(@PathVariable("id") Long id);
 
-  @GetMapping("api/v1/post")
+  @GetMapping
   ResponseEntity<Page<PostDto>> getAll(PostSearchDto searchDto, Pageable page);
 
-  @PostMapping("api/v1/post/") //TODO а здесь убери api/v1/post/
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   void create(@RequestBody PostDto dto);
 
-  @PutMapping("api/v1/post/")
+  @PutMapping
   @ResponseStatus(HttpStatus.CREATED)
   void update(@RequestBody PostDto dto);
 
-  @DeleteMapping("api/v1/post/{id}")
+  @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   void deleteById(@PathVariable("id") Long id);
 
