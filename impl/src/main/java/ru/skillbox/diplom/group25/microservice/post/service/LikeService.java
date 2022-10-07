@@ -34,12 +34,12 @@ public class LikeService {
     Long userId = 1L;
     dto.setAuthorId(userId);
 
-    if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())){
+    if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id())){
       likeRepository.save(mapper.toEntity(dto));
       if (dto.getType().equals(LikeType.POST)){
-        postService.setLike(dto.getItemId());
+        postService.setLike(dto.getItem_id());
       } else {
-        commentService.setLike(dto.getItemId());
+        commentService.setLike(dto.getItem_id());
       }
     } else {
       log.info("Like already exists with: " + dto);
@@ -53,12 +53,12 @@ public class LikeService {
     log.info("delete begins " + dto);
     //TODO: получаем из jwt-токена текущий userid
     Long userId = 1L;
-    if (likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())) {
-      likeRepository.deleteByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId());
+    if (likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id())) {
+      likeRepository.deleteByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id());
       if (dto.getType().equals(LikeType.POST)) {
-        postService.dislike(dto.getItemId());
+        postService.dislike(dto.getItem_id());
       } else {
-        commentService.dislike(dto.getItemId());
+        commentService.dislike(dto.getItem_id());
       }
     } else {
       log.info("Like not found with: " + dto);

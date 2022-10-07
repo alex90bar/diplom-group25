@@ -19,7 +19,7 @@ public class LikeDto {
   private Long authorId;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private ZonedDateTime time;
-  private Long itemId;
+  private Long item_id;
   private LikeType type;
 
 }
