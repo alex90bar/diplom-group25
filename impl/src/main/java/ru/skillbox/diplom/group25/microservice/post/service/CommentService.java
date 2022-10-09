@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
+import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentType;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
@@ -33,12 +34,12 @@ public class CommentService {
   private final CommentMapper mapper;
   private final LikeRepository likeRepository;
 
-  public void create(CommentDto dto) {
+  public void create(CommentDto dto, Long id) {
     log.info("create begins comment " + dto);
 
     //проверяем наличие поста в базе
-    postRepository.findById(dto.getPostId())
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getPostId()));
+    postRepository.findById(id)
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
 
     //если это комент на комент, проверяем наличие родительского комента в БД и ограничиваем создание коммента на коммент 2 уровнями
     if (dto.getParentId() != null) {
@@ -48,7 +49,8 @@ public class CommentService {
         throw new NotFoundException("Cannot create subsubcomment for comment");
       }
     }
-
+    dto.setAuthorId(TokenUtil.getJwtInfo().getId());
+    dto.setPostId(id);
     commentRepository.save(mapper.toEntity(dto));
     log.info("create ends");
   }

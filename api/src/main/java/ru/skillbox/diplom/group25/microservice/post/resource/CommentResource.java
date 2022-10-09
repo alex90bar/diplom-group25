@@ -16,18 +16,18 @@ import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
  * @author alex90bar
  */
 
-@RequestMapping("api/v1/post/comments")
+@RequestMapping("api/v1/post")
 public interface CommentResource {
 
-  @PostMapping
+  @PostMapping("/{id}/comments")
   @ResponseStatus(HttpStatus.CREATED)
-  void create(@RequestBody CommentDto dto);
+  void create(@RequestBody CommentDto dto, @PathVariable("id") Long id);
 
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/{id}/comments")
   @ResponseStatus(HttpStatus.OK)
   void deleteById(@PathVariable("id") Long id);
 
-  @PutMapping
+  @PutMapping("/comments")
   @ResponseStatus(HttpStatus.CREATED)
   void update(@RequestBody CommentDto dto);
 }

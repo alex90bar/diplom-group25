@@ -20,6 +20,7 @@ import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.webjars.NotFoundException;
+import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
@@ -91,6 +92,7 @@ public class PostService {
 
   public void create(PostDto dto) {
     log.info("create begins post " + dto);
+    dto.setAuthorId(TokenUtil.getJwtInfo().getId());
     postRepository.save(postMapper.toEntity(dto));
 
       try {

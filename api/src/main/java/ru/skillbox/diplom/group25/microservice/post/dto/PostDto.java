@@ -18,11 +18,11 @@ public class PostDto {
 
   private Long id;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private ZonedDateTime time; //TODO измени если это время публикации
+  private ZonedDateTime time;
   private Long authorId;
   private String title;
   private PostType type;
-  private String postText;
+  private String post_text;
   private Boolean isBlocked;
   private List<CommentDto> comments;
   private List<PostTagDto> tags;

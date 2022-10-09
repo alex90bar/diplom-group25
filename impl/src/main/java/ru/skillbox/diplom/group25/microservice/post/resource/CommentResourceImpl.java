@@ -22,8 +22,8 @@ public class CommentResourceImpl implements CommentResource{
 
 
   @Override
-  public void create(CommentDto dto) {
-    commentService.create(dto);
+  public void create(CommentDto dto, Long id) {
+    commentService.create(dto, id);
   }
 
   @Override

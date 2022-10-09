@@ -25,6 +25,8 @@ public interface PostMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "time", expression = "java(newTime())")
+  @Mapping(target = "likeAmount", defaultValue = "0")
+  @Mapping(target = "postText", source = "post_text")
   Post toEntity(PostDto dto);
 
   @Mapping(target = "type", constant = "POSTED")
