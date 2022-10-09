@@ -32,6 +32,7 @@ public interface CommentMapper {
   @Mapping(target = "commentType", expression = "java(getCommentType(entity.getParentId()))")
   @Mapping(target = "postId", source = "entity.post.id")
   @Mapping(target = "myLike", source = "myLike")
+  @Mapping(target = "comment_text", source = "entity.commentText")
   CommentDto toDto(Comment entity, Boolean myLike);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
