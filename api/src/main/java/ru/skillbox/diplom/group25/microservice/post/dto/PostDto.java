@@ -22,7 +22,7 @@ public class PostDto {
   private Long authorId;
   private String title;
   private PostType type;
-  private String post_text;
+  private String postText;
   private Boolean isBlocked;
   private List<CommentDto> comments;
   private List<PostTagDto> tags;

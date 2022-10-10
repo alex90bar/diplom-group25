@@ -20,7 +20,7 @@ public class CommentDto {
   private ZonedDateTime time;
   private Long authorId;
   private Long parentId;
-  private String comment_text;
+  private String commentText;
   private Long postId;
   private Boolean isBlocked;
   private Boolean isDelete;

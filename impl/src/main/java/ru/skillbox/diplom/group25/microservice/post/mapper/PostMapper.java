@@ -26,14 +26,12 @@ public interface PostMapper {
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "time", expression = "java(newTime())")
   @Mapping(target = "likeAmount", defaultValue = "0")
-  @Mapping(target = "postText", source = "post_text")
   Post toEntity(PostDto dto);
 
   @Mapping(target = "type", constant = "POSTED")
   @Mapping(target = "comments", source = "comments")
   @Mapping(target = "tags", expression = "java(newPostTagDto())")
   @Mapping(target = "myLike", source = "myLike")
-  @Mapping(target = "post_text", source =  "entity.postText")
   @Mapping(target = "isBlocked", defaultValue = "false")
   PostDto toDto(Post entity, List<CommentDto> comments, Boolean myLike);
 

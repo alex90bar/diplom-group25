@@ -25,14 +25,12 @@ public interface CommentMapper {
   @Mapping(target = "likeAmount", defaultValue = "0")
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "post.id", source = "postId")
-  @Mapping(target = "commentText", source = "comment_text")
   Comment toEntity(CommentDto dto);
 
 
   @Mapping(target = "commentType", expression = "java(getCommentType(entity.getParentId()))")
   @Mapping(target = "postId", source = "entity.post.id")
   @Mapping(target = "myLike", source = "myLike")
-  @Mapping(target = "comment_text", source = "entity.commentText")
   @Mapping(target = "isBlocked", defaultValue = "false")
   @Mapping(target = "isDelete", defaultValue = "false")
   CommentDto toDto(Comment entity, Boolean myLike);
