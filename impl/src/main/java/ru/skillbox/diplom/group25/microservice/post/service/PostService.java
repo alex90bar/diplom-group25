@@ -55,8 +55,7 @@ public class PostService {
   public PostDto getById(Long id) {
     log.info("getById begins, id: " + id);
 
-    //TODO: получаем из jwt-токена текущий userid
-    Long userId = 1L;
+    Long userId = TokenUtil.getJwtInfo().getId();
 
     Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
@@ -72,12 +71,11 @@ public class PostService {
 
   @Transactional(readOnly = true)
   public Page<PostDto> getAll(PostSearchDto searchDto, Pageable page) {
-    log.info("getAll begins " + searchDto); //свой id тебе должен передавать фронт
+    log.info("getAll begins " + searchDto);
     if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
     } //TODO идем в друзья и получаем спискок id друзей и добавляем;
 
-    //TODO: получаем из jwt-токена текущий userid
-    Long userId = 1L;
+    Long userId = TokenUtil.getJwtInfo().getId();
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
       List<CommentDto> comments = commentService.getAllByPostId(post.getId());
