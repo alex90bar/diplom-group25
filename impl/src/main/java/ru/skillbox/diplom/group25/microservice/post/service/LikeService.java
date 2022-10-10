@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.mapper.LikeMapper;
@@ -30,8 +31,8 @@ public class LikeService {
 //    Пересчитываем количество лайков в соответствующем посте/коменте.
   public void create(LikeDto dto) {
     log.info("create begins " + dto);
-    //TODO: получаем из jwt-токена текущий userid
-    Long userId = 1L;
+
+    Long userId = TokenUtil.getJwtInfo().getId();
     dto.setAuthorId(userId);
 
     if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id())){
@@ -51,8 +52,8 @@ public class LikeService {
   //Пересчитываем количество лайков в соответствующем посте/коменте.
   public void delete(LikeDto dto){
     log.info("delete begins " + dto);
-    //TODO: получаем из jwt-токена текущий userid
-    Long userId = 1L;
+
+    Long userId = TokenUtil.getJwtInfo().getId();
     if (likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id())) {
       likeRepository.deleteByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItem_id());
       if (dto.getType().equals(LikeType.POST)) {

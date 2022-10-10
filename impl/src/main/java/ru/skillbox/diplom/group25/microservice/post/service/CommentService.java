@@ -59,8 +59,7 @@ public class CommentService {
   public List<CommentDto> getAllByPostId(Long id) {
     log.info("getAllByPostId begins, postId " + id);
 
-    //TODO: получаем из jwt-токена текущий userid
-    Long userId = 3L;
+    Long userId = TokenUtil.getJwtInfo().getId();
 
     List<CommentDto> comments = commentRepository.findAllByPostIdOrderByIdAsc(id)
         .stream().map(comment -> {
@@ -110,7 +109,7 @@ public class CommentService {
   public void dislike(Long itemId) {
     log.info("dislike begins, commentId: " + itemId);
     Comment comment = commentRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));;
+        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));
     comment.setLikeAmount(comment.getLikeAmount() - 1);
     log.info("dislike ends");
   }
@@ -118,7 +117,7 @@ public class CommentService {
   public void setLike(Long itemId) {
     log.info("setLike begins, commentId: " + itemId);
     Comment comment = commentRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));;
+        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));
     comment.setLikeAmount(comment.getLikeAmount() + 1);
     log.info("setLike ends");
   }
