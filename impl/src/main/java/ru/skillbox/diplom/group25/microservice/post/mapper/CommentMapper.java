@@ -33,6 +33,8 @@ public interface CommentMapper {
   @Mapping(target = "postId", source = "entity.post.id")
   @Mapping(target = "myLike", source = "myLike")
   @Mapping(target = "comment_text", source = "entity.commentText")
+  @Mapping(target = "isBlocked", defaultValue = "false")
+  @Mapping(target = "isDelete", defaultValue = "false")
   CommentDto toDto(Comment entity, Boolean myLike);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
