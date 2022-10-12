@@ -25,6 +25,7 @@ public interface CommentMapper {
   @Mapping(target = "likeAmount", defaultValue = "0")
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "post.id", source = "postId")
+  @Mapping(target = "commentsCount", defaultValue = "0")
   Comment toEntity(CommentDto dto);
 
 

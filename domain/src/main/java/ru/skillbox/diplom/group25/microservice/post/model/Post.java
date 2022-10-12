@@ -51,6 +51,9 @@ public class Post {
   @Column(name = "like_amount", nullable = false)
   private Integer likeAmount;
 
+  @Column(name = "comments_count", nullable = false)
+  private Integer commentsCount;
+
   @Column(name = "my_like")
   private Boolean myLike;
 

@@ -1,7 +1,12 @@
 package ru.skillbox.diplom.group25.microservice.post.resource;
 
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,15 +24,22 @@ import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 @RequestMapping("api/v1/post")
 public interface CommentResource {
 
-  @PostMapping("/{id}/comments")
+  @PostMapping("/{id}/comment")
   @ResponseStatus(HttpStatus.CREATED)
   void create(@RequestBody CommentDto dto, @PathVariable("id") Long id);
 
-  @DeleteMapping("/{id}/comments")
+  @GetMapping("/{id}/comment")
+  ResponseEntity<List<CommentDto>> getByPostId(@PathVariable("id") Long id, Pageable page);
+
+  @GetMapping("/{id}/comment/{commentId}/subcomment")
+  ResponseEntity<List<CommentDto>> getByPostIdAndCommentId(@PathVariable("id") Long id,
+      @PathVariable("commentId") Long commentId, Pageable page);
+
+  @DeleteMapping("/{id}/comment")
   @ResponseStatus(HttpStatus.OK)
   void deleteById(@PathVariable("id") Long id);
 
-  @PutMapping("/comments")
+  @PutMapping("/comment")
   @ResponseStatus(HttpStatus.CREATED)
   void update(@RequestBody CommentDto dto);
 }

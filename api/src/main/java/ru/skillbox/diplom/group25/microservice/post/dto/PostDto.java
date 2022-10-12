@@ -24,7 +24,8 @@ public class PostDto {
   private PostType type;
   private String postText;
   private Boolean isBlocked;
-  private List<CommentDto> comments;
+  private Boolean isDelete;
+  private Integer commentsCount;
   private List<PostTagDto> tags;
   private Integer likeAmount;
   private Boolean myLike;

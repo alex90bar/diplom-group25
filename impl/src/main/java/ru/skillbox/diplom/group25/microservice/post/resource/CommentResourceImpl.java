@@ -1,7 +1,10 @@
 package ru.skillbox.diplom.group25.microservice.post.resource;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +27,16 @@ public class CommentResourceImpl implements CommentResource{
   @Override
   public void create(CommentDto dto, Long id) {
     commentService.create(dto, id);
+  }
+
+  @Override
+  public ResponseEntity<List<CommentDto>> getByPostId(Long id, Pageable page) {
+    return ResponseEntity.ok(commentService.getAllByPostIdAndCommentId(id, 0L, page));
+  }
+
+  @Override
+  public ResponseEntity<List<CommentDto>> getByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
+    return ResponseEntity.ok(commentService.getAllByPostIdAndCommentId(id, commentId, page));
   }
 
   @Override

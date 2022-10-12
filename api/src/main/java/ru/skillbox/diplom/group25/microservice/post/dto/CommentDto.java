@@ -26,7 +26,7 @@ public class CommentDto {
   private Boolean isDelete;
   private Integer likeAmount;
   private Boolean myLike;
-  private List<CommentDto> subComments;
+  private Integer commentsCount;
   private String imagePath;
 
 }

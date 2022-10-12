@@ -54,6 +54,9 @@ public class Comment {
   @Column(name = "is_delete")
   private Boolean isDelete;
 
+  @Column(name = "comments_count", nullable = false)
+  private Integer commentsCount;
+
   @Column(name = "like_amount", nullable = false)
   private Integer likeAmount;
 

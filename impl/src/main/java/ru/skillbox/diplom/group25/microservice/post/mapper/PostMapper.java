@@ -25,15 +25,18 @@ public interface PostMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "time", expression = "java(newTime())")
+  @Mapping(target = "publishDate", expression = "java(newTime())")
   @Mapping(target = "likeAmount", defaultValue = "0")
+  @Mapping(target = "commentsCount", defaultValue = "0")
+  @Mapping(target = "myLike", defaultValue = "false")
+  @Mapping(target = "isBlocked", defaultValue = "false")
+  @Mapping(target = "isDelete", defaultValue = "false")
   Post toEntity(PostDto dto);
 
   @Mapping(target = "type", constant = "POSTED")
-  @Mapping(target = "comments", source = "comments")
   @Mapping(target = "tags", expression = "java(newPostTagDto())")
   @Mapping(target = "myLike", source = "myLike")
-  @Mapping(target = "isBlocked", defaultValue = "false")
-  PostDto toDto(Post entity, List<CommentDto> comments, Boolean myLike);
+  PostDto toDto(Post entity, Boolean myLike);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updatePostFromDto(PostDto dto, @MappingTarget Post post);

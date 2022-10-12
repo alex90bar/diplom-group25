@@ -15,7 +15,7 @@ import ru.skillbox.diplom.group25.microservice.post.dto.LikeDto;
  * @author alex90bar
  */
 
-@RequestMapping("api/v1/post/likes")
+@RequestMapping("api/v1/post/like")
 public interface LikeResource {
 
   @PostMapping

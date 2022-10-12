@@ -44,7 +44,6 @@ import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 public class PostService {
 
   private final PostRepository postRepository;
-  private final CommentService commentService;
   private final LikeRepository likeRepository;
   private final PostMapper postMapper;
 
@@ -53,20 +52,19 @@ public class PostService {
 
   @Transactional(readOnly = true)
   public PostDto getById(Long id) {
-    log.info("getById begins, id: " + id);
+    log.info("getById begins, id: {}", id);
 
     Long userId = TokenUtil.getJwtInfo().getId();
 
     Post post = postRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
-    List<CommentDto> comments = commentService.getAllByPostId(id);
 
     // проверяем, ставил ли лайк текущий юзер
-    log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: " + userId + ", postId: " + id);
+    log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {} postId: {} ", userId, id);
     Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, id);
 
     log.info("getById ends ");
-    return postMapper.toDto(post, comments, myLike);
+    return postMapper.toDto(post, myLike);
   }
 
   @Transactional(readOnly = true)
@@ -78,18 +76,17 @@ public class PostService {
     Long userId = TokenUtil.getJwtInfo().getId();
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
-      List<CommentDto> comments = commentService.getAllByPostId(post.getId());
 
       // проверяем, ставил ли лайк текущий юзер
-      log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: " + userId + ", postId: " + post.getId());
+      log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {} postId: {}", userId, post.getId());
       Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, post.getId());
 
-      return postMapper.toDto(post, comments, myLike);
+      return postMapper.toDto(post, myLike);
     });
   }
 
   public void create(PostDto dto) {
-    log.info("create begins post " + dto);
+    log.info("create begins post {}", dto);
     dto.setAuthorId(TokenUtil.getJwtInfo().getId());
     postRepository.save(postMapper.toEntity(dto));
 
@@ -131,7 +128,7 @@ public class PostService {
   }
 
   public void update(PostDto dto) {
-    log.info("update begins post " + dto);
+    log.info("update begins post {}", dto);
     Post post = postRepository.findById(dto.getId())
         .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getId()));
     postMapper.updatePostFromDto(dto, post);
@@ -154,17 +151,17 @@ public class PostService {
   }
 
   public void dislike(Long itemId) {
-    log.info("dislike begins, postId: " + itemId);
+    log.info("dislike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));;
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));
     post.setLikeAmount(post.getLikeAmount() - 1);
     log.info("dislike ends");
   }
 
   public void setLike(Long itemId) {
-    log.info("setLike begins, postId: " + itemId);
+    log.info("setLike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));;
+        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));
     post.setLikeAmount(post.getLikeAmount() + 1);
     log.info("setLike ends");
   }

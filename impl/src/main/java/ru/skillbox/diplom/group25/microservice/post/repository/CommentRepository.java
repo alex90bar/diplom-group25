@@ -18,5 +18,5 @@ import ru.skillbox.diplom.group25.microservice.post.model.Post;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
-  List<Comment> findAllByPostIdOrderByIdAsc(Long postId);
+  Page<Comment> findAllByPostIdAndParentId(Long postId, Long parentId, Pageable page);
 }
