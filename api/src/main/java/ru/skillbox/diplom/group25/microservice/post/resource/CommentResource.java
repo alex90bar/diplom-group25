@@ -29,10 +29,10 @@ public interface CommentResource {
   void create(@RequestBody CommentDto dto, @PathVariable("id") Long id);
 
   @GetMapping("/{id}/comment")
-  ResponseEntity<List<CommentDto>> getByPostId(@PathVariable("id") Long id, Pageable page);
+  ResponseEntity<Page<CommentDto>> getByPostId(@PathVariable("id") Long id, Pageable page);
 
   @GetMapping("/{id}/comment/{commentId}/subcomment")
-  ResponseEntity<List<CommentDto>> getByPostIdAndCommentId(@PathVariable("id") Long id,
+  ResponseEntity<Page<CommentDto>> getByPostIdAndCommentId(@PathVariable("id") Long id,
       @PathVariable("commentId") Long commentId, Pageable page);
 
   @DeleteMapping("/{id}/comment")

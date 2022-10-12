@@ -67,19 +67,19 @@ public class CommentService {
   }
 
   @Transactional(readOnly = true)
-  public List<CommentDto> getAllByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
+  public Page<CommentDto> getAllByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
     log.info("getAllByPostId begins, postId {}", id);
 
     Long userId = TokenUtil.getJwtInfo().getId();
 
     return commentRepository.findAllByPostIdAndParentId(id, commentId, page)
-        .stream().map(comment -> {
+        .map(comment -> {
 
           // проверяем каждый комент на наличие лайка от текущего юзера
           log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {}  commentId: {}", userId, comment.getId());
           Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.COMMENT, comment.getId());
           return mapper.toDto(comment, myLike);
-        }).collect(Collectors.toList());
+        });
 
   }
 

@@ -30,12 +30,12 @@ public class CommentResourceImpl implements CommentResource{
   }
 
   @Override
-  public ResponseEntity<List<CommentDto>> getByPostId(Long id, Pageable page) {
+  public ResponseEntity<Page<CommentDto>> getByPostId(Long id, Pageable page) {
     return ResponseEntity.ok(commentService.getAllByPostIdAndCommentId(id, 0L, page));
   }
 
   @Override
-  public ResponseEntity<List<CommentDto>> getByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
+  public ResponseEntity<Page<CommentDto>> getByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
     return ResponseEntity.ok(commentService.getAllByPostIdAndCommentId(id, commentId, page));
   }
 
