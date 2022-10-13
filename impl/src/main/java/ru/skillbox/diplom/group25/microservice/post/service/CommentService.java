@@ -38,7 +38,7 @@ public class CommentService {
   private final LikeRepository likeRepository;
 
   public void create(CommentDto dto, Long id) {
-    log.info("create begins comment " + dto);
+    log.info("create begins comment {}", dto);
 
     //проверяем наличие поста в базе
     Post post = postRepository.findById(id)

@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import ru.skillbox.diplom.group25.microservice.post.dto.PhotoDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.service.PostService;
+import ru.skillbox.diplom.group25.microservice.post.service.StorageService;
 
 /**
  * PostResourceImpl
@@ -20,6 +23,7 @@ import ru.skillbox.diplom.group25.microservice.post.service.PostService;
 public class PostResourceImpl implements PostResource {
 
   private final PostService postService;
+  private final StorageService storageService;
 
   @Override
   public ResponseEntity<PostDto> getById(Long id) {
@@ -44,6 +48,11 @@ public class PostResourceImpl implements PostResource {
   @Override
   public void deleteById(Long id) {
     postService.deleteById(id);
+  }
+
+  @Override
+  public ResponseEntity<PhotoDto> uploadFile(MultipartFile file) {
+    return storageService.uploadPhoto(file);
   }
 
 }

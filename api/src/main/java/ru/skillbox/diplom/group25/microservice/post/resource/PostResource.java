@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
+import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.PhotoDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 
@@ -41,5 +45,12 @@ public interface PostResource {
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   void deleteById(@PathVariable("id") Long id);
+
+
+  @PostMapping("/storagePostPhoto")
+  ResponseEntity<PhotoDto> uploadFile(@RequestParam MultipartFile file);
+
+
+
 
 }
