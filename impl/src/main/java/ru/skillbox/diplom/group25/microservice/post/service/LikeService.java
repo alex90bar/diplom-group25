@@ -29,10 +29,13 @@ public class LikeService {
 
 //    Проверяем, есть ли лайк в БД, если нет - то создаем.
 //    Пересчитываем количество лайков в соответствующем посте/коменте.
-  public void create(LikeDto dto) {
-    log.info("create begins " + dto);
+  public void create(Long id, Long commentId) {
+    log.info("create begins with id: {} commentId {} ", id, commentId);
 
     Long userId = TokenUtil.getJwtInfo().getId();
+    LikeDto dto = new LikeDto();
+    dto.setType(commentId == 0 ? LikeType.POST : LikeType.COMMENT);
+    dto.setItemId(commentId == 0 ? id : commentId);
     dto.setAuthorId(userId);
 
     if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())){
@@ -43,17 +46,22 @@ public class LikeService {
         commentService.setLike(dto.getItemId());
       }
     } else {
-      log.info("Like already exists with: " + dto);
+      log.info("Like already exists with: {}", dto);
     }
     log.info("create ends");
   }
 
   //Проверяем наличие лайка в БД, если есть - удаляем.
   //Пересчитываем количество лайков в соответствующем посте/коменте.
-  public void delete(LikeDto dto){
-    log.info("delete begins " + dto);
+  public void delete(Long id, Long commentId){
+    log.info("delete begins with id: {} commentId {} ", id, commentId);
 
     Long userId = TokenUtil.getJwtInfo().getId();
+
+    LikeDto dto = new LikeDto();
+    dto.setType(commentId == 0 ? LikeType.POST : LikeType.COMMENT);
+    dto.setItemId(commentId == 0 ? id : commentId);
+
     if (likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())) {
       likeRepository.deleteByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId());
       if (dto.getType().equals(LikeType.POST)) {
@@ -62,7 +70,7 @@ public class LikeService {
         commentService.dislike(dto.getItemId());
       }
     } else {
-      log.info("Like not found with: " + dto);
+      log.info("Like not found with: {}", dto);
     }
     log.info("delete ends ");
   }
