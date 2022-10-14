@@ -23,7 +23,7 @@ import ru.skillbox.diplom.group25.microservice.post.model.Post;
 public interface PostMapper {
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
+  @Mapping(target = "imagePath", defaultValue = "")
   @Mapping(target = "time", expression = "java(newTime())")
   @Mapping(target = "publishDate", expression = "java(newTime())")
   @Mapping(target = "likeAmount", defaultValue = "0")
