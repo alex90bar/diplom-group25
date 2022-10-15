@@ -1,5 +1,6 @@
 package ru.skillbox.diplom.group25.microservice.post.service;
 
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.equal;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
@@ -25,6 +26,7 @@ import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
+import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.model.Post_;
@@ -57,7 +59,12 @@ public class PostService {
     Long userId = TokenUtil.getJwtInfo().getId();
 
     Post post = postRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
+        .orElseThrow(PostNotFoundException::new);
+
+    if (post.getIsDelete()){
+      log.info("Post was deleted!");
+      throw new PostNotFoundException();
+    }
 
     // проверяем, ставил ли лайк текущий юзер
     log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {} postId: {} ", userId, id);
@@ -130,7 +137,7 @@ public class PostService {
   public void update(PostDto dto) {
     log.info("update begins post {}", dto);
     Post post = postRepository.findById(dto.getId())
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + dto.getId()));
+        .orElseThrow(PostNotFoundException::new);
     postMapper.updatePostFromDto(dto, post);
     log.info("update ends");
   }
@@ -138,8 +145,16 @@ public class PostService {
   public void deleteById(Long id) {
     log.info("deleteById begins");
     Post post = postRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
-    postRepository.delete(post);
+        .orElseThrow(PostNotFoundException::new);
+
+    Long userId = TokenUtil.getJwtInfo().getId();
+
+    if (!post.getAuthorId().equals(userId)){
+      log.error("Cannot delete post of another user (post.authorId not equals userId)");
+      return;
+    }
+
+    post.setIsDelete(true);
     log.info("deleteById ends");
   }
 
@@ -147,13 +162,14 @@ public class PostService {
     return in(Post_.id, dto.getIds(), true)
         .and(like(Post_.postText, dto.getPostText(), true))
         .and(like(Post_.title, dto.getTitle(), true))
+        .and(equal(Post_.isDelete, dto.getIsDelete(), true))
         .and(in(Post_.authorId, dto.getAccountIds(), true));
   }
 
   public void dislike(Long itemId) {
     log.info("dislike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));
+        .orElseThrow(PostNotFoundException::new);
     post.setLikeAmount(post.getLikeAmount() - 1);
     log.info("dislike ends");
   }
@@ -161,7 +177,7 @@ public class PostService {
   public void setLike(Long itemId) {
     log.info("setLike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + itemId));
+        .orElseThrow(PostNotFoundException::new);
     post.setLikeAmount(post.getLikeAmount() + 1);
     log.info("setLike ends");
   }

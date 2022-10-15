@@ -16,6 +16,7 @@ public class PostSearchDto {
   private String title;
   private String postText;
   private Boolean withFriends;
+  private Boolean isDelete;
 }
 
 
