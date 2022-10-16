@@ -173,6 +173,26 @@ public class PostService {
       return;
     }
 
+    // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.
+    String[] tags = dto.getTags();
+    Set<Tag> tagSet = new HashSet<>();
+
+    if (tags != null){
+      for (String tag : tags){
+        Tag existingTag = tagRepository.findByTag(tag);
+
+        if (existingTag == null){
+          Tag newTag = new Tag();
+          newTag.setTag(tag);
+          tagSet.add(tagRepository.save(newTag));
+        } else {
+          tagSet.add(existingTag);
+        }
+      }
+    }
+
+    post.setTagsToPost(tagSet);
+
     postMapper.updatePostFromDto(dto, post);
     log.info("update ends");
   }

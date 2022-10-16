@@ -39,15 +39,8 @@ public interface PostMapper {
   PostDto toDto(Post entity, Boolean myLike, String[] tags);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @Mapping(target = "tagsToPost", ignore = true)
   void updatePostFromDto(PostDto dto, @MappingTarget Post post);
-
-  default List<PostTagDto> newPostTagDto(){
-    return new ArrayList<>();
-  }
-
-  default List<CommentDto> newPostCommentDto(){
-    return new ArrayList<>();
-  }
 
   default ZonedDateTime newTime() {
     return ZonedDateTime.now();
