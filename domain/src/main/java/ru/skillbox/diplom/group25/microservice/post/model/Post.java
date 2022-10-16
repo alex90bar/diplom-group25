@@ -1,10 +1,14 @@
 package ru.skillbox.diplom.group25.microservice.post.model;
 
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +66,13 @@ public class Post {
 
   @Column(name = "publish_date")
   private ZonedDateTime publishDate;
+
+  @ManyToMany
+  @JoinTable(
+      name = "tags_to_post",
+      joinColumns = @JoinColumn(name = "post_id"),
+      inverseJoinColumns = @JoinColumn(name = "tag_id"))
+  private Set<Tag> tagsToPost;
 
 }
 

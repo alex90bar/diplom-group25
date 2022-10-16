@@ -5,7 +5,9 @@ import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUt
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
 import java.net.URI;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +22,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.webjars.NotFoundException;
 import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
-import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
@@ -30,8 +30,10 @@ import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundExcept
 import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.model.Post_;
+import ru.skillbox.diplom.group25.microservice.post.model.Tag;
 import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
+import ru.skillbox.diplom.group25.microservice.post.repository.TagRepository;
 
 /**
  * PostService
@@ -47,6 +49,7 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final LikeRepository likeRepository;
+  private final TagRepository tagRepository;
   private final PostMapper postMapper;
 
   @Value(value = "${rest.websocket_uri}")
@@ -70,8 +73,9 @@ public class PostService {
     log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {} postId: {} ", userId, id);
     Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, id);
 
+    String[] tags =  post.getTagsToPost().stream().map(Tag::getTag).toArray(String[]::new);
     log.info("getById ends ");
-    return postMapper.toDto(post, myLike);
+    return postMapper.toDto(post, myLike, tags);
   }
 
   @Transactional(readOnly = true)
@@ -88,14 +92,36 @@ public class PostService {
       log.info("likeRepository.existsByAuthorIdAndTypeAndItemId begins with userId: {} postId: {}", userId, post.getId());
       Boolean myLike = likeRepository.existsByAuthorIdAndTypeAndItemId(userId, LikeType.POST, post.getId());
 
-      return postMapper.toDto(post, myLike);
+      String[] tags =  post.getTagsToPost().stream().map(Tag::getTag).toArray(String[]::new);
+
+      return postMapper.toDto(post, myLike, tags);
     });
   }
 
   public void create(PostDto dto) {
     log.info("create begins post {}", dto);
     dto.setAuthorId(TokenUtil.getJwtInfo().getId());
-    postRepository.save(postMapper.toEntity(dto));
+
+
+    // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.
+    String[] tags = dto.getTags();
+    Set<Tag> tagSet = new HashSet<>();
+    if (tags != null){
+      for (String tag : tags){
+        Tag existingTag = tagRepository.findByTag(tag);
+
+        if (existingTag == null){
+          Tag newTag = new Tag();
+          newTag.setTag(tag);
+          tagSet.add(tagRepository.save(newTag));
+        } else {
+          tagSet.add(existingTag);
+        }
+      }
+    }
+
+    postRepository.save(postMapper.toEntity(dto)).setTagsToPost(tagSet);
+
 
       try {
         WebSocketClient webSocketClient = new StandardWebSocketClient();
