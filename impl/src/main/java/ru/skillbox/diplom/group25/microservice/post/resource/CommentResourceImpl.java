@@ -37,13 +37,13 @@ public class CommentResourceImpl implements CommentResource{
   }
 
   @Override
-  public void deleteById(Long id) {
-    commentService.deleteById(id);
+  public void deleteById(Long id, Long commentId) {
+    commentService.deleteById(commentId);
   }
 
   @Override
-  public void update(CommentDto dto) {
-    commentService.update(dto);
+  public void update(Long id, Long commentId, CommentDto dto) {
+    commentService.update(dto, commentId);
   }
 
 }

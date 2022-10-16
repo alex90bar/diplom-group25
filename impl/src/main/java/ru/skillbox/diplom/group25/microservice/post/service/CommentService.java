@@ -13,6 +13,8 @@ import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentType;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
+import ru.skillbox.diplom.group25.microservice.post.exception.CommentNotFoundException;
+import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.mapper.CommentMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Comment;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
@@ -42,7 +44,7 @@ public class CommentService {
 
     //проверяем наличие поста в базе
     Post post = postRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Post not found with id: " + id));
+        .orElseThrow(PostNotFoundException::new);
 
     //если это комент на комент, проверяем наличие родительского комента в БД и ограничиваем создание коммента на коммент 2 уровнями
     if (dto.getParentId() != null) {
@@ -72,7 +74,7 @@ public class CommentService {
 
     Long userId = TokenUtil.getJwtInfo().getId();
 
-    return commentRepository.findAllByPostIdAndParentId(id, commentId, page)
+    return commentRepository.findAllByPostIdAndParentIdAndIsDelete(id, commentId, false, page)
         .map(comment -> {
 
           // проверяем каждый комент на наличие лайка от текущего юзера
@@ -83,19 +85,37 @@ public class CommentService {
 
   }
 
-  public void deleteById(Long id) {
+  public void deleteById(Long commentId) {
     log.info("deleteById begins");
-    Comment comment = commentRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + id));
+    Comment comment = commentRepository.findById(commentId)
+        .orElseThrow(CommentNotFoundException::new);
+
+    Long userId = TokenUtil.getJwtInfo().getId();
+
+    if (!comment.getAuthorId().equals(userId)){
+      log.error("Cannot delete comment of another user (comment.authorId is not equal userId)");
+      return;
+    }
+
     comment.setIsDelete(true);
     log.info("deleteById ends");
   }
 
 
-  public void update(CommentDto dto) {
+  public void update(CommentDto dto, Long commentId) {
     log.info("update begins comment {}", dto);
+    dto.setId(commentId);
+
     Comment comment = commentRepository.findById(dto.getId())
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + dto.getId()));
+        .orElseThrow(CommentNotFoundException::new);
+
+    Long userId = TokenUtil.getJwtInfo().getId();
+
+    if (!comment.getAuthorId().equals(userId)){
+      log.error("Cannot update comment of another user (comment.authorId is not equal userId)");
+      return;
+    }
+
     mapper.updateCommentFromDto(dto, comment);
     log.info("update ends");
   }
@@ -103,7 +123,7 @@ public class CommentService {
   public void dislike(Long itemId) {
     log.info("dislike begins, commentId: {} ", itemId);
     Comment comment = commentRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));
+        .orElseThrow(CommentNotFoundException::new);
     comment.setLikeAmount(comment.getLikeAmount() - 1);
     log.info("dislike ends");
   }
@@ -111,7 +131,7 @@ public class CommentService {
   public void setLike(Long itemId) {
     log.info("setLike begins, commentId: {}", itemId);
     Comment comment = commentRepository.findById(itemId)
-        .orElseThrow(() -> new NotFoundException("Comment not found with id: " + itemId));
+        .orElseThrow(CommentNotFoundException::new);
     comment.setLikeAmount(comment.getLikeAmount() + 1);
     log.info("setLike ends");
   }

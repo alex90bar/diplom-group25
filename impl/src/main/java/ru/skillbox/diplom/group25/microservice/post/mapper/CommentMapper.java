@@ -26,6 +26,8 @@ public interface CommentMapper {
   @Mapping(target = "imagePath", defaultValue = "http://dummyimage.com/130x60/a6a6ff")
   @Mapping(target = "post.id", source = "postId")
   @Mapping(target = "commentsCount", defaultValue = "0")
+  @Mapping(target = "isBlocked", defaultValue = "false")
+  @Mapping(target = "isDelete", defaultValue = "false")
   Comment toEntity(CommentDto dto);
 
 

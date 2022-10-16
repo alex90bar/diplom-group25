@@ -35,11 +35,11 @@ public interface CommentResource {
   ResponseEntity<Page<CommentDto>> getByPostIdAndCommentId(@PathVariable("id") Long id,
       @PathVariable("commentId") Long commentId, Pageable page);
 
-  @DeleteMapping("/{id}/comment")
+  @DeleteMapping("/{id}/comment/{commentId}")
   @ResponseStatus(HttpStatus.OK)
-  void deleteById(@PathVariable("id") Long id);
+  void deleteById(@PathVariable("id") Long id, @PathVariable("commentId") Long commentId);
 
-  @PutMapping("/comment")
+  @PutMapping("/{id}/comment/{commentId}")
   @ResponseStatus(HttpStatus.CREATED)
-  void update(@RequestBody CommentDto dto);
+  void update(@PathVariable("id") Long id, @PathVariable("commentId") Long commentId, @RequestBody CommentDto dto);
 }
