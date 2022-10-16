@@ -98,6 +98,19 @@ public class CommentService {
     }
 
     comment.setIsDelete(true);
+
+    //пересчитываем количество комментов к посту / родительскому комменту
+    if (comment.getParentId().equals(0L)){
+      Post post = postRepository.findById(comment.getPost().getId())
+          .orElseThrow(PostNotFoundException::new);
+      post.setCommentsCount(post.getCommentsCount() - 1);
+    } else {
+      Comment parentComment = commentRepository.findById(comment.getParentId())
+          .orElseThrow(CommentNotFoundException::new);
+      parentComment.setCommentsCount(parentComment.getCommentsCount() - 1);
+    }
+
+
     log.info("deleteById ends");
   }
 
