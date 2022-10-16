@@ -134,10 +134,19 @@ public class PostService {
     log.info("create ends");
   }
 
-  public void update(PostDto dto) {
+  public void update(PostDto dto, Long id) {
     log.info("update begins post {}", dto);
+    dto.setId(id);
     Post post = postRepository.findById(dto.getId())
         .orElseThrow(PostNotFoundException::new);
+
+    Long userId = TokenUtil.getJwtInfo().getId();
+
+    if (!post.getAuthorId().equals(userId)){
+      log.error("Cannot update post of another user (post.authorId is not equal userId)");
+      return;
+    }
+
     postMapper.updatePostFromDto(dto, post);
     log.info("update ends");
   }
@@ -150,7 +159,7 @@ public class PostService {
     Long userId = TokenUtil.getJwtInfo().getId();
 
     if (!post.getAuthorId().equals(userId)){
-      log.error("Cannot delete post of another user (post.authorId not equals userId)");
+      log.error("Cannot delete post of another user (post.authorId is not equal userId)");
       return;
     }
 

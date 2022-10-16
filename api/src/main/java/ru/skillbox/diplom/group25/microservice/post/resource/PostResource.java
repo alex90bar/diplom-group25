@@ -38,9 +38,9 @@ public interface PostResource {
   @ResponseStatus(HttpStatus.CREATED)
   void create(@RequestBody PostDto dto);
 
-  @PutMapping
+  @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.CREATED)
-  void update(@RequestBody PostDto dto);
+  void update(@RequestBody PostDto dto, @PathVariable("id") Long id);
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)

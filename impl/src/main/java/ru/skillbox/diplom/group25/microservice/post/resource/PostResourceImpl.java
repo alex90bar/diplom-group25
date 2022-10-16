@@ -41,8 +41,8 @@ public class PostResourceImpl implements PostResource {
   }
 
   @Override
-  public void update(PostDto dto) {
-    postService.update(dto);
+  public void update(PostDto dto, Long id) {
+    postService.update(dto, id);
   }
 
   @Override
