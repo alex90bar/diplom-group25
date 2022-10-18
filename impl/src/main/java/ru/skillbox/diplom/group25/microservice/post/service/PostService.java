@@ -241,9 +241,15 @@ public class PostService {
 
   }
 
+  public static final Specification EMPTY_SPECIFICATION = (root, query, criteriaBuilder) -> {
+    return null;
+  };
+
   public Specification<Post> containsTag(String[] tags){
     return (root, query, builder) -> {
       if (tags == null) return builder.conjunction();
+      if (Arrays.toString(tags).equals("[]")) return builder.conjunction();
+      log.info("tags: {}", Arrays.toString(tags) );
       Join<Post, Tag> join = root.join(Post_.TAGS_TO_POST);
       return builder.in(join.get(Tag_.TAG)).value(Arrays.asList(tags));
     };
