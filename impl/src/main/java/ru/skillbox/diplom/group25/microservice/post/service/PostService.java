@@ -1,13 +1,18 @@
 package ru.skillbox.diplom.group25.microservice.post.service;
 
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.between;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.equal;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import javax.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +36,7 @@ import ru.skillbox.diplom.group25.microservice.post.mapper.PostMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 import ru.skillbox.diplom.group25.microservice.post.model.Post_;
 import ru.skillbox.diplom.group25.microservice.post.model.Tag;
+import ru.skillbox.diplom.group25.microservice.post.model.Tag_;
 import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.TagRepository;
@@ -213,13 +219,38 @@ public class PostService {
     log.info("deleteById ends");
   }
 
+
+
+  public ZonedDateTime secondsToZoned(Long seconds){
+    if (seconds == null){
+      return null;
+    } else {
+      return ZonedDateTime.ofInstant(Instant.ofEpochSecond(seconds), ZoneId.systemDefault());
+    }
+  }
+
   public Specification<Post> getSpecification(PostSearchDto dto) {
+    log.info("Datefrom: {} dateto: {}", secondsToZoned(dto.getDate_from()), secondsToZoned(dto.getDate_to()));
     return in(Post_.id, dto.getIds(), true)
+        .and(containsTag(dto.getTags()))
+        .and(between(Post_.time, secondsToZoned(dto.getDate_from()), secondsToZoned(dto.getDate_to()), true))
         .and(like(Post_.postText, dto.getPostText(), true))
         .and(like(Post_.title, dto.getTitle(), true))
         .and(equal(Post_.isDelete, dto.getIsDelete(), true))
         .and(in(Post_.authorId, dto.getAccountIds(), true));
+
   }
+
+  public Specification<Post> containsTag(String[] tags){
+    return (root, query, builder) -> {
+      if (tags == null) return builder.conjunction();
+      Join<Post, Tag> join = root.join(Post_.TAGS_TO_POST);
+      return builder.in(join.get(Tag_.TAG)).value(Arrays.asList(tags));
+    };
+  }
+
+
+
 
   public void dislike(Long itemId) {
     log.info("dislike begins, postId: {}", itemId);
