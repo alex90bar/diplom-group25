@@ -38,7 +38,7 @@ public class Comment {
   @Column(name = "parent_id", nullable = false)
   private Long parentId;
 
-  @Column(name = "comment_text", nullable = false)
+  @Column(name = "comment_text", nullable = false, length = 4096)
   private String commentText;
 
   @ManyToOne(fetch = FetchType.LAZY)

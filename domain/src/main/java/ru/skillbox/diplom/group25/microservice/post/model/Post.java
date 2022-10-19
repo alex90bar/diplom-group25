@@ -43,7 +43,7 @@ public class Post {
   @Column(name = "title", nullable = false)
   private String title;
 
-  @Column(name = "post_text", nullable = false)
+  @Column(name = "post_text", nullable = false, length = 4096)
   private String postText;
 
   @Column(name = "is_blocked")
