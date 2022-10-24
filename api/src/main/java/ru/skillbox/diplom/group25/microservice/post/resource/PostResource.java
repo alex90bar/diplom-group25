@@ -36,7 +36,7 @@ public interface PostResource {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  void create(@RequestBody PostDto dto);
+  void create(@RequestBody PostDto dto, @RequestParam(required = false, value = "publishDate") Long publishDate);
 
   @PutMapping("/{id}")
   @ResponseStatus(HttpStatus.CREATED)

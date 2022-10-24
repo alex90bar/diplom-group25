@@ -36,8 +36,8 @@ public class PostResourceImpl implements PostResource {
   }
 
   @Override
-  public void create(PostDto dto) {
-    postService.create(dto);
+  public void create(PostDto dto, Long publishDate) {
+    postService.create(dto, publishDate);
   }
 
   @Override

@@ -104,9 +104,10 @@ public class PostService {
     });
   }
 
-  public void create(PostDto dto) {
+  public void create(PostDto dto, Long publishDate) {
     log.info("create begins post {}", dto);
     dto.setAuthorId(TokenUtil.getJwtInfo().getId());
+    dto.setPublishDate(secondsToZoned(publishDate));
 
 
     // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.
@@ -133,9 +134,9 @@ public class PostService {
         WebSocketClient webSocketClient = new StandardWebSocketClient();
 
         final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-        headers.add("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiLQkNC70LXQutGB0LDQ"
-            + "vdC00YAiLCJpZCI6NiwiZXhwIjoxOTc4MzYzNTA3LCJlbWFpbCI6ImFsZXg5MGJhckBnbWFpbC5jb20iLCJyb2xlcyI6IlVTRVIifQ.SrWNrjcmNX"
-            + "3l4HCuhvSL44IvNlg9MsWAW4vebK20y-4");
+//        headers.add("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiLQkNC70LXQutGB0LDQ"
+//            + "vdC00YAiLCJpZCI6NiwiZXhwIjoxOTc4MzYzNTA3LCJlbWFpbCI6ImFsZXg5MGJhckBnbWFpbC5jb20iLCJyb2xlcyI6IlVTRVIifQ.SrWNrjcmNX"
+//            + "3l4HCuhvSL44IvNlg9MsWAW4vebK20y-4");
 
         WebSocketSession webSocketSession = webSocketClient.doHandshake(new TextWebSocketHandler() {
           @Override
@@ -234,6 +235,7 @@ public class PostService {
     return in(Post_.id, dto.getIds(), true)
         .and(containsTag(dto.getTags()))
         .and(between(Post_.time, secondsToZoned(dto.getDate_from()), secondsToZoned(dto.getDate_to()), true))
+        .and(between(Post_.publishDate, ZonedDateTime.now().minusYears(10L), ZonedDateTime.now(), true))
         .and(like(Post_.postText, dto.getPostText(), true))
         .and(like(Post_.title, dto.getTitle(), true))
         .and(equal(Post_.isDelete, dto.getIsDelete(), true))
