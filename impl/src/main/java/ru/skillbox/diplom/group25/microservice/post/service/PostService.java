@@ -108,6 +108,7 @@ public class PostService {
     log.info("create begins post {}", dto);
     dto.setAuthorId(TokenUtil.getJwtInfo().getId());
     dto.setPublishDate(secondsToZoned(publishDate));
+    dto.setTime(secondsToZoned(publishDate));
 
 
     // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.

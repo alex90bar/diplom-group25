@@ -24,7 +24,7 @@ public interface PostMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "imagePath", defaultValue = "")
-  @Mapping(target = "time", expression = "java(newTime())")
+  @Mapping(target = "time", defaultExpression = "java(newTime())")
   @Mapping(target = "publishDate", defaultExpression = "java(newTime())")
   @Mapping(target = "likeAmount", defaultValue = "0")
   @Mapping(target = "commentsCount", defaultValue = "0")
