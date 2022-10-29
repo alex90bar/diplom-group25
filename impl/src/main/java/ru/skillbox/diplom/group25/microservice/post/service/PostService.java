@@ -8,8 +8,11 @@ import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUt
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.skillbox.diplom.group25.library.core.configuration.TechnicalUserConfig;
 import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
+import ru.skillbox.diplom.group25.microservice.account.client.AccountFeignClient;
+import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
+import ru.skillbox.diplom.group25.microservice.account.model.AccountSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
@@ -32,6 +39,7 @@ import ru.skillbox.diplom.group25.microservice.post.model.Tag_;
 import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.TagRepository;
+import  ru.skillbox.diplom.group25.microservice.account.model.AccountByFilterDto;
 
 /**
  * PostService
@@ -49,6 +57,8 @@ public class PostService {
   private final LikeRepository likeRepository;
   private final TagRepository tagRepository;
   private final PostMapper postMapper;
+  private final AccountFeignClient accountFeignClient;
+  private final TechnicalUserConfig technicalUserConfig;
 
 
   /**
@@ -201,7 +211,11 @@ public class PostService {
   }
 
   public Specification<Post> getSpecification(PostSearchDto dto) {
-    log.info("Datefrom: {} dateto: {}", secondsToZoned(dto.getDateFrom()), secondsToZoned(dto.getDateTo()));
+
+    if (dto.getAuthor() != null){
+      proceedAuthorSearch(dto);
+    }
+
     return in(Post_.id, dto.getIds(), true)
         .and(containsTag(dto.getTags()))
         .and(between(Post_.time, secondsToZoned(dto.getDateFrom()), secondsToZoned(dto.getDateTo()), true))
@@ -211,6 +225,60 @@ public class PostService {
         .and(equal(Post_.isDelete, dto.getIsDelete(), true))
         .and(in(Post_.authorId, dto.getAccountIds(), true));
 
+  }
+
+  /**
+   * Метод для поиска по авторам, обращается через feign-client в microservice-account и получает id пользователей,
+   * для дальнейшего поиска постов по найденным пользователям
+   * */
+  private void proceedAuthorSearch(PostSearchDto dto) {
+    log.info("Search by postAuthor begins");
+
+    String[] authors = dto.getAuthor().split(" ");
+
+    List<Long> accountIds = new ArrayList<>();
+
+    for (String author : authors){
+      AccountByFilterDto accountByFilterDto = new AccountByFilterDto();
+      accountByFilterDto.setPageNumber(0);
+      accountByFilterDto.setPageSize(1000);
+
+      AccountSearchDto searchDto = new AccountSearchDto();
+      
+      //ищем по имени
+      log.info("Searching by firstName: {}", author);
+      searchDto.setFirstName(author);
+      accountByFilterDto.setAccountSearchDto(searchDto);
+
+      accountIds.addAll(searchAccountWithFeign(accountByFilterDto));
+
+      //ищем по фамилии
+      log.info("Searching by lastName: {}", author);
+      searchDto.setFirstName(null);
+      searchDto.setLastName(author);
+      accountByFilterDto.setAccountSearchDto(searchDto);
+
+      accountIds.addAll(searchAccountWithFeign(accountByFilterDto));
+
+    }
+
+    dto.setAccountIds(accountIds);
+    log.info("Searching by postAuthor ends, authors founded: {}", accountIds);
+  }
+
+  /**
+   * Метод для получения id пользователей по имени/фамилии, обращается через feign-client в microservice-account
+   * */
+  private List<Long> searchAccountWithFeign(AccountByFilterDto accountByFilterDto) {
+    return technicalUserConfig.executeByTechnicalUser(() -> {
+
+      Page<AccountDto> page = accountFeignClient.searchAccountByFilter(accountByFilterDto).getBody();
+      if (page != null){
+        return page.map(AccountDto::getId).getContent();
+      }
+
+      return null;
+    });
   }
 
   public Specification<Post> containsTag(String[] tags){
