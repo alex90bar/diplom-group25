@@ -18,8 +18,8 @@ public class PostSearchDto {
   private Boolean withFriends;
   private Boolean isDelete;
   private String[] tags;
-  private Long date_from;
-  private Long date_to;
+  private Long dateFrom;
+  private Long dateTo;
 }
 
 

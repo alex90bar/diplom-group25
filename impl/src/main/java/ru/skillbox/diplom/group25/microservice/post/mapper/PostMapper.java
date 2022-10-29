@@ -1,16 +1,12 @@
 package ru.skillbox.diplom.group25.microservice.post.mapper;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
-import ru.skillbox.diplom.group25.microservice.post.dto.PostTagDto;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
 
 /**

@@ -1,5 +1,6 @@
 package ru.skillbox.diplom.group25.microservice.post.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,9 @@ public class CommentService {
 
   }
 
+  /**
+   * Удаление комментария по id
+   * */
   public void deleteById(Long commentId) {
     log.info("deleteById begins");
     Comment comment = commentRepository.findById(commentId)
@@ -121,7 +125,9 @@ public class CommentService {
     log.info("deleteById ends");
   }
 
-
+  /**
+   *    * Редактирование комментария по id через dto
+   * */
   public void update(CommentDto dto, Long commentId) {
     log.info("update begins comment {}", dto);
     dto.setId(commentId);
@@ -136,10 +142,16 @@ public class CommentService {
       return;
     }
 
+    //обновляем дату публикации комментария
+    dto.setTime(ZonedDateTime.now());
+
     mapper.updateCommentFromDto(dto, comment);
     log.info("update ends");
   }
 
+  /**
+   * Метод удаления лайка (пересчет количества лайков коммента)
+   * */
   public void dislike(Long itemId) {
     log.info("dislike begins, commentId: {} ", itemId);
     Comment comment = commentRepository.findById(itemId)
@@ -148,6 +160,9 @@ public class CommentService {
     log.info("dislike ends");
   }
 
+  /**
+   * Метод добавления лайка (пересчет количества лайков коммента)
+   * */
   public void setLike(Long itemId) {
     log.info("setLike begins, commentId: {}", itemId);
     Comment comment = commentRepository.findById(itemId)

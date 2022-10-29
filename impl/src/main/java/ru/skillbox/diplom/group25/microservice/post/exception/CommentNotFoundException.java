@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author alex90bar
  */
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = PostNotFoundException.REASON_RU)
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = CommentNotFoundException.REASON_RU)
 public class CommentNotFoundException extends RuntimeException {
 
   public static final String REASON_RU = "Комментарий не найден в БД";

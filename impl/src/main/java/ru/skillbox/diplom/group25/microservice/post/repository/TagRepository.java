@@ -16,6 +16,4 @@ public interface TagRepository extends JpaRepository<Tag, Long>, JpaSpecificatio
 
   Tag findByTag(String tag);
 
-  Boolean existsByTag(String tag);
-
 }

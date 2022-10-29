@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author alex90bar
  */
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = PostNotFoundException.REASON_RU)
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = SubcommentRestrictionException.REASON_RU)
 public class SubcommentRestrictionException extends RuntimeException {
 
   public static final String REASON_RU = "Невозможно создать комментарий к подкомментарию";

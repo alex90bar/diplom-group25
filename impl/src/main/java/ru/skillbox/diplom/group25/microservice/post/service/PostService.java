@@ -201,10 +201,10 @@ public class PostService {
   }
 
   public Specification<Post> getSpecification(PostSearchDto dto) {
-    log.info("Datefrom: {} dateto: {}", secondsToZoned(dto.getDate_from()), secondsToZoned(dto.getDate_to()));
+    log.info("Datefrom: {} dateto: {}", secondsToZoned(dto.getDateFrom()), secondsToZoned(dto.getDateTo()));
     return in(Post_.id, dto.getIds(), true)
         .and(containsTag(dto.getTags()))
-        .and(between(Post_.time, secondsToZoned(dto.getDate_from()), secondsToZoned(dto.getDate_to()), true))
+        .and(between(Post_.time, secondsToZoned(dto.getDateFrom()), secondsToZoned(dto.getDateTo()), true))
         .and(between(Post_.publishDate, ZonedDateTime.now().minusYears(10L), ZonedDateTime.now(), true))
         .and(like(Post_.postText, dto.getPostText(), true))
         .and(like(Post_.title, dto.getTitle(), true))

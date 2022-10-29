@@ -1,7 +1,6 @@
 package ru.skillbox.diplom.group25.microservice.post.dto;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
