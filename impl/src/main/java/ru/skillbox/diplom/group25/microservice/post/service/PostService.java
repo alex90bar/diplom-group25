@@ -263,7 +263,7 @@ public class PostService {
     }
 
     dto.setAccountIds(accountIds);
-    log.info("Searching by postAuthor ends, authors founded: {}", accountIds);
+    log.info("Searching by postAuthor ends, list of accountIds founded: {}", accountIds);
   }
 
   /**
