@@ -5,7 +5,6 @@ import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUt
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
-import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -15,18 +14,11 @@ import java.util.Set;
 import javax.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHttpHeaders;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
@@ -58,9 +50,10 @@ public class PostService {
   private final TagRepository tagRepository;
   private final PostMapper postMapper;
 
-  @Value(value = "${rest.websocket_uri}")
-  private String socketUri;
 
+  /**
+   * Получение поста по id
+   * */
   @Transactional(readOnly = true)
   public PostDto getById(Long id) {
     log.info("getById begins, id: {}", id);
@@ -84,9 +77,12 @@ public class PostService {
     return postMapper.toDto(post, myLike, tags);
   }
 
+  /**
+   * Получение постов по заданным параметрам через searchDto
+   * */
   @Transactional(readOnly = true)
   public Page<PostDto> getAll(PostSearchDto searchDto, Pageable page) {
-    log.info("getAll begins " + searchDto);
+    log.info("getAll begins {}", searchDto);
     if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
     } //TODO идем в друзья и получаем спискок id друзей и добавляем;
 
@@ -104,6 +100,10 @@ public class PostService {
     });
   }
 
+
+  /**
+   * Создание нового поста
+   * */
   public void create(PostDto dto, Long publishDate) {
     log.info("create begins post {}", dto);
     dto.setAuthorId(TokenUtil.getJwtInfo().getId());
@@ -112,6 +112,17 @@ public class PostService {
 
 
     // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.
+    Set<Tag> tagSet = proceedTags(dto);
+
+    postRepository.save(postMapper.toEntity(dto)).setTagsToPost(tagSet);
+
+    log.info("create ends");
+  }
+
+  /**
+   * Метод обработки тегов при создании/редактировании поста
+   * */
+  public Set<Tag> proceedTags(PostDto dto){
     String[] tags = dto.getTags();
     Set<Tag> tagSet = new HashSet<>();
     if (tags != null){
@@ -127,47 +138,12 @@ public class PostService {
         }
       }
     }
-
-    postRepository.save(postMapper.toEntity(dto)).setTagsToPost(tagSet);
-
-
-      try {
-        WebSocketClient webSocketClient = new StandardWebSocketClient();
-
-        final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-//        headers.add("Authorization", "Bearer " + "eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdE5hbWUiOiLQkNC70LXQutGB0LDQ"
-//            + "vdC00YAiLCJpZCI6NiwiZXhwIjoxOTc4MzYzNTA3LCJlbWFpbCI6ImFsZXg5MGJhckBnbWFpbC5jb20iLCJyb2xlcyI6IlVTRVIifQ.SrWNrjcmNX"
-//            + "3l4HCuhvSL44IvNlg9MsWAW4vebK20y-4");
-
-        WebSocketSession webSocketSession = webSocketClient.doHandshake(new TextWebSocketHandler() {
-          @Override
-          public void handleTextMessage(WebSocketSession session, TextMessage message) {
-            log.info("received message - " + message.getPayload());
-          }
-
-          @Override
-          public void afterConnectionEstablished(WebSocketSession session) {
-            log.info("established connection - " + session);
-          }
-        }, headers, URI.create(socketUri)).get();
-
-
-          try {
-            TextMessage message = new TextMessage("Testing web socket message!");
-            webSocketSession.sendMessage(message);
-            log.info("sent message - " + message.getPayload());
-          } catch (Exception e) {
-            log.error("Exception while sending a message", e);
-          }
-
-
-    }  catch (Exception e) {
-        log.error("Exception while accessing websockets", e);
-      }
-
-    log.info("create ends");
+    return tagSet;
   }
 
+  /**
+   * Редактирование поста
+   * */
   public void update(PostDto dto, Long id) {
     log.info("update begins post {}", dto);
     dto.setId(id);
@@ -182,29 +158,20 @@ public class PostService {
     }
 
     // обрабатываем теги, если теги новые - создаем, если теги уже имеются - закрепляем их за постом.
-    String[] tags = dto.getTags();
-    Set<Tag> tagSet = new HashSet<>();
-
-    if (tags != null){
-      for (String tag : tags){
-        Tag existingTag = tagRepository.findByTag(tag);
-
-        if (existingTag == null){
-          Tag newTag = new Tag();
-          newTag.setTag(tag);
-          tagSet.add(tagRepository.save(newTag));
-        } else {
-          tagSet.add(existingTag);
-        }
-      }
-    }
+    Set<Tag> tagSet = proceedTags(dto);
 
     post.setTagsToPost(tagSet);
+
+    //обновляем дату публикации поста
+    dto.setTime(ZonedDateTime.now());
 
     postMapper.updatePostFromDto(dto, post);
     log.info("update ends");
   }
 
+  /**
+   * Удаление поста по id
+   * */
   public void deleteById(Long id) {
     log.info("deleteById begins");
     Post post = postRepository.findById(id)
@@ -222,7 +189,9 @@ public class PostService {
   }
 
 
-
+  /**
+   * Метод форматирования времени из секунд в формат ZonedDateTime
+   * */
   public ZonedDateTime secondsToZoned(Long seconds){
     if (seconds == null){
       return null;
@@ -244,10 +213,6 @@ public class PostService {
 
   }
 
-  public static final Specification EMPTY_SPECIFICATION = (root, query, criteriaBuilder) -> {
-    return null;
-  };
-
   public Specification<Post> containsTag(String[] tags){
     return (root, query, builder) -> {
       if (tags == null) return builder.conjunction();
@@ -260,7 +225,9 @@ public class PostService {
 
 
 
-
+  /**
+   * Метод удаления лайка (пересчет количества лайков поста)
+   * */
   public void dislike(Long itemId) {
     log.info("dislike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)
@@ -269,6 +236,9 @@ public class PostService {
     log.info("dislike ends");
   }
 
+  /**
+   * Метод добавления лайка (пересчет количества лайков поста)
+   * */
   public void setLike(Long itemId) {
     log.info("setLike begins, postId: {}", itemId);
     Post post = postRepository.findById(itemId)

@@ -27,8 +27,9 @@ public class LikeService {
   private final CommentService commentService;
   private final LikeMapper mapper;
 
-//    Проверяем, есть ли лайк в БД, если нет - то создаем.
-//    Пересчитываем количество лайков в соответствующем посте/коменте.
+  /**
+   * Метод создания лайка
+   * */
   public void create(Long id, Long commentId) {
     log.info("create begins with id: {} commentId {} ", id, commentId);
 
@@ -38,6 +39,8 @@ public class LikeService {
     dto.setItemId(commentId == 0 ? id : commentId);
     dto.setAuthorId(userId);
 
+    //    Проверяем, есть ли лайк в БД, если нет - то создаем.
+    //    Пересчитываем количество лайков в соответствующем посте/коменте.
     if (!likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())){
       likeRepository.save(mapper.toEntity(dto));
       if (dto.getType().equals(LikeType.POST)){
@@ -51,8 +54,10 @@ public class LikeService {
     log.info("create ends");
   }
 
-  //Проверяем наличие лайка в БД, если есть - удаляем.
-  //Пересчитываем количество лайков в соответствующем посте/коменте.
+
+  /**
+   * Метод удаления лайка
+   * */
   public void delete(Long id, Long commentId){
     log.info("delete begins with id: {} commentId {} ", id, commentId);
 
@@ -62,6 +67,9 @@ public class LikeService {
     dto.setType(commentId == 0 ? LikeType.POST : LikeType.COMMENT);
     dto.setItemId(commentId == 0 ? id : commentId);
 
+
+    //Проверяем наличие лайка в БД, если есть - удаляем.
+    //Пересчитываем количество лайков в соответствующем посте/коменте.
     if (likeRepository.existsByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId())) {
       likeRepository.deleteByAuthorIdAndTypeAndItemId(userId, dto.getType(), dto.getItemId());
       if (dto.getType().equals(LikeType.POST)) {

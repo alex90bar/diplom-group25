@@ -15,6 +15,7 @@ import ru.skillbox.diplom.group25.microservice.post.dto.CommentType;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.exception.CommentNotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundException;
+import ru.skillbox.diplom.group25.microservice.post.exception.SubcommentRestrictionException;
 import ru.skillbox.diplom.group25.microservice.post.mapper.CommentMapper;
 import ru.skillbox.diplom.group25.microservice.post.model.Comment;
 import ru.skillbox.diplom.group25.microservice.post.model.Post;
@@ -39,6 +40,9 @@ public class CommentService {
   private final CommentMapper mapper;
   private final LikeRepository likeRepository;
 
+  /**
+   * Создание нового комментария
+   * */
   public void create(CommentDto dto, Long id) {
     log.info("create begins comment {}", dto);
 
@@ -49,9 +53,9 @@ public class CommentService {
     //если это комент на комент, проверяем наличие родительского комента в БД и ограничиваем создание коммента на коммент 2 уровнями
     if (dto.getParentId() != null) {
       Comment comment = commentRepository.findById(dto.getParentId())
-          .orElseThrow(() -> new NotFoundException("Comment not found with parentId: " + dto.getParentId()));
+          .orElseThrow(CommentNotFoundException::new);
       if (comment.getParentId() > 0){
-        throw new NotFoundException("Cannot create subsubcomment for comment");
+        throw new SubcommentRestrictionException();
       }
       comment.setCommentsCount(comment.getCommentsCount() + 1);
     }
@@ -68,6 +72,9 @@ public class CommentService {
     log.info("create ends");
   }
 
+  /**
+   * Получение подкомментариев по id поста и комментария
+   * */
   @Transactional(readOnly = true)
   public Page<CommentDto> getAllByPostIdAndCommentId(Long id, Long commentId, Pageable page) {
     log.info("getAllByPostId begins, postId {}", id);

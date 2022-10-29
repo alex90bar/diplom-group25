@@ -26,6 +26,9 @@ public class StorageService {
 
   private final Cloudinary cloudinary;
 
+  /**
+   * Загрузка изображения в cloudinary
+   * */
   public ResponseEntity<PhotoDto> uploadPhoto(MultipartFile file) {
 
     log.info("uploadPhoto starts");
