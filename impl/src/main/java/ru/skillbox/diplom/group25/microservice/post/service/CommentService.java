@@ -143,7 +143,7 @@ public class CommentService {
     }
 
     //обновляем дату публикации комментария
-    dto.setTime(ZonedDateTime.now());
+    dto.setTimeChanged(ZonedDateTime.now());
 
     mapper.updateCommentFromDto(dto, comment);
     log.info("update ends");

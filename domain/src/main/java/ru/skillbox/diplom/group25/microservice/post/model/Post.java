@@ -37,6 +37,9 @@ public class Post {
   @Column(name = "time", nullable = false)
   private ZonedDateTime time;
 
+  @Column(name = "time_changed")
+  private ZonedDateTime timeChanged;
+
   @Column(name = "author_id", nullable = false)
   private Long authorId;
 

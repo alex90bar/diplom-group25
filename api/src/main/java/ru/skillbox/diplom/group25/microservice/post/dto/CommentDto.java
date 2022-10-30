@@ -17,6 +17,7 @@ public class CommentDto {
   private Long id;
   private CommentType commentType;
   private ZonedDateTime time;
+  private ZonedDateTime timeChanged;
   private Long authorId;
   private Long parentId;
   private String commentText;

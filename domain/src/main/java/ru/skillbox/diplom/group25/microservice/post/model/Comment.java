@@ -35,6 +35,9 @@ public class Comment {
   @Column(name = "time", nullable = false)
   private ZonedDateTime time;
 
+  @Column(name = "time_changed")
+  private ZonedDateTime timeChanged;
+
   @Column(name = "parent_id", nullable = false)
   private Long parentId;
 

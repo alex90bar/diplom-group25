@@ -173,7 +173,7 @@ public class PostService {
     post.setTagsToPost(tagSet);
 
     //обновляем дату публикации поста
-    dto.setTime(ZonedDateTime.now());
+    dto.setTimeChanged(ZonedDateTime.now());
 
     postMapper.updatePostFromDto(dto, post);
     log.info("update ends");

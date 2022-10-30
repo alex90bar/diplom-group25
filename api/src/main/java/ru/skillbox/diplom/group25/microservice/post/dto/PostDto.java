@@ -18,6 +18,7 @@ public class PostDto {
   private Long id;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private ZonedDateTime time;
+  private ZonedDateTime timeChanged;
   private Long authorId;
   private String title;
   private PostType type;
