@@ -30,7 +30,7 @@ spring:
       schema-locations: classpath:schema.sql
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
     properties:
