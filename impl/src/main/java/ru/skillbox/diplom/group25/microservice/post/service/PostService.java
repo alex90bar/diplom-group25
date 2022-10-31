@@ -27,6 +27,7 @@ import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.account.client.AccountFeignClient;
 import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
 import ru.skillbox.diplom.group25.microservice.account.model.AccountSearchDto;
+import ru.skillbox.diplom.group25.microservice.friend.client.FriendsFeignClient;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
@@ -58,6 +59,7 @@ public class PostService {
   private final TagRepository tagRepository;
   private final PostMapper postMapper;
   private final AccountFeignClient accountFeignClient;
+  private final FriendsFeignClient friendsFeignClient;
   private final TechnicalUserConfig technicalUserConfig;
 
 
@@ -93,10 +95,16 @@ public class PostService {
   @Transactional(readOnly = true)
   public Page<PostDto> getAll(PostSearchDto searchDto, Pageable page) {
     log.info("getAll begins {}", searchDto);
-    if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
-    } //TODO идем в друзья и получаем спискок id друзей и добавляем;
 
     Long userId = TokenUtil.getJwtInfo().getId();
+
+    //идем в друзья и получаем спискок id друзей и добавляем, для показа новостей друзей, плюс свой id
+    if (searchDto.getWithFriends() != null && searchDto.getWithFriends()) {
+
+      List<Long> friendsIds = friendsFeignClient.getFriendId();
+      friendsIds.add(userId);
+      searchDto.setAccountIds(friendsIds);
+    }
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
 
