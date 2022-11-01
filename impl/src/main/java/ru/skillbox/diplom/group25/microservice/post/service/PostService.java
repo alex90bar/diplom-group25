@@ -110,7 +110,9 @@ public class PostService {
 
       //удаляем из поискового запроса id заблокированных пользователей
       List<Long> blockedFriends = friendsFeignClient.getBlockFriendId();
-      searchDto.setBlockedIds(blockedFriends);
+
+      if (!blockedFriends.isEmpty())   searchDto.setBlockedIds(blockedFriends);
+
       log.info("List of blockedFriends: {}", blockedFriends);
     }
 
