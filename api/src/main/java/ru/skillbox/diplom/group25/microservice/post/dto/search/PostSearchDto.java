@@ -13,6 +13,7 @@ import lombok.Data;
 public class PostSearchDto {
   private List<Long> ids;
   private List<Long> accountIds;
+  private List<Long> blockedIds;
   private String author;
   private String title;
   private String postText;

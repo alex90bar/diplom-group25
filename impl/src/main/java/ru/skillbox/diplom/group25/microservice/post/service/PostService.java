@@ -2,6 +2,7 @@ package ru.skillbox.diplom.group25.microservice.post.service;
 
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.between;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.equal;
+import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.exclude;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.in;
 import static ru.skillbox.diplom.group25.library.core.repository.SpecificationUtils.like;
 
@@ -10,7 +11,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.diplom.group25.library.core.configuration.TechnicalUserConfig;
 import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.account.client.AccountFeignClient;
+import ru.skillbox.diplom.group25.microservice.account.model.AccountByFilterDto;
 import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
 import ru.skillbox.diplom.group25.microservice.account.model.AccountSearchDto;
 import ru.skillbox.diplom.group25.microservice.friend.client.FriendsFeignClient;
@@ -40,7 +41,6 @@ import ru.skillbox.diplom.group25.microservice.post.model.Tag_;
 import ru.skillbox.diplom.group25.microservice.post.repository.LikeRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.PostRepository;
 import ru.skillbox.diplom.group25.microservice.post.repository.TagRepository;
-import  ru.skillbox.diplom.group25.microservice.account.model.AccountByFilterDto;
 
 /**
  * PostService
@@ -104,6 +104,12 @@ public class PostService {
       List<Long> friendsIds = friendsFeignClient.getFriendId();
       friendsIds.add(userId);
       searchDto.setAccountIds(friendsIds);
+
+    } else {
+
+      //удаляем из поискового запроса id заблокированных пользователей
+      List<Long> blockedFriends = friendsFeignClient.getBlockFriendId();
+      searchDto.setBlockedIds(blockedFriends);
     }
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
@@ -231,6 +237,7 @@ public class PostService {
         .and(like(Post_.postText, dto.getPostText(), true))
         .and(like(Post_.title, dto.getTitle(), true))
         .and(equal(Post_.isDelete, dto.getIsDelete(), true))
+        .and(exclude(Post_.authorId, dto.getBlockedIds(), true))
         .and(in(Post_.authorId, dto.getAccountIds(), true));
 
   }
