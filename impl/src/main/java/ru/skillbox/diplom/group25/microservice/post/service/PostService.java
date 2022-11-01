@@ -105,12 +105,16 @@ public class PostService {
       friendsIds.add(userId);
       searchDto.setAccountIds(friendsIds);
 
+      log.info("List of friends ids and currentUserId: {}", friendsIds);
     } else {
 
       //удаляем из поискового запроса id заблокированных пользователей
       List<Long> blockedFriends = friendsFeignClient.getBlockFriendId();
       searchDto.setBlockedIds(blockedFriends);
+      log.info("List of blockedFriends: {}", blockedFriends);
     }
+
+    log.info("getAll ends {}", searchDto);
 
     return postRepository.findAll(getSpecification(searchDto), page).map(post -> {
 
