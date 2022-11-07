@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +31,8 @@ import ru.skillbox.diplom.group25.microservice.account.model.AccountDto;
 import ru.skillbox.diplom.group25.microservice.account.model.AccountSearchDto;
 import ru.skillbox.diplom.group25.microservice.friend.client.FriendsFeignClient;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
+import ru.skillbox.diplom.group25.microservice.post.dto.NotificationInputDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.NotificationType;
 import ru.skillbox.diplom.group25.microservice.post.dto.PostDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.search.PostSearchDto;
 import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundException;
@@ -61,6 +64,10 @@ public class PostService {
   private final AccountFeignClient accountFeignClient;
   private final FriendsFeignClient friendsFeignClient;
   private final TechnicalUserConfig technicalUserConfig;
+  private final KafkaSender kafkaSender;
+
+  @Value(value = "${kafka-topics.notifications}")
+  private String topicNotification;
 
 
   /**
@@ -145,6 +152,21 @@ public class PostService {
     Set<Tag> tagSet = proceedTags(dto);
 
     postRepository.save(postMapper.toEntity(dto)).setTagsToPost(tagSet);
+
+    //получаем список id друзей и отправляем нотификации для всех друзей в microservice-notification о публикации нового поста
+    List<Long> friendsIds = friendsFeignClient.getFriendId();
+
+    String content = dto.getTitle().length() > 20 ? dto.getTitle().substring(0, 20) + "..." : dto.getTitle();
+
+    NotificationInputDto notification = new NotificationInputDto(dto.getAuthorId(), null,
+        NotificationType.POST, content);
+
+    for (Long friendId : friendsIds){
+
+      notification.setUserId(friendId);
+
+      kafkaSender.sendMessage(topicNotification, "New post notification", notification);
+    }
 
     log.info("create ends");
   }

@@ -18,6 +18,18 @@ spring:
     change-log: classpath:database-post-changelog.xml
     default-schema: post
 
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost:9092}
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
+      acks: 1
+
   datasource:
     url: jdbc:${DATABASE_URL:postgresql://localhost:5432/skillbox}
     username: ${USER_DB:post-service}
@@ -44,6 +56,23 @@ rest:
   password: ${ACCOUNT_SERVICE_PASS:903a76f0-f289-4957-8742-e42469641620}
   account-service-host: ${ACCOUNT_SERVICE_HOST:http://130.61.44.151}
   websocket_uri: ${WEB_SOCKET_URI:ws://localhost:8080/api/v1/streaming/ws}
+
+kafka-topics:
+  notifications: notifications
+
+kafka-groupId: microservice-post
+kafka-concurrency: 5
+kafka-pollTimeout: 2000
+acks-timeout-mseconds: 2000
+pong_interval: 10000
+
+java:
+  concurrent:
+    corePoolSize: 10
+    maximumPoolSize: 20
+    queueCapacity: 200
+    keepAliveSeconds: 60
+
 
 
 
