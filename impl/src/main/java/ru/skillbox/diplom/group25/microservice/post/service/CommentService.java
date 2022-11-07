@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import ru.skillbox.diplom.group25.library.core.util.TokenUtil;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentDto;
 import ru.skillbox.diplom.group25.microservice.post.dto.CommentType;
 import ru.skillbox.diplom.group25.microservice.post.dto.LikeType;
+import ru.skillbox.diplom.group25.microservice.post.dto.NotificationInputDto;
+import ru.skillbox.diplom.group25.microservice.post.dto.NotificationType;
 import ru.skillbox.diplom.group25.microservice.post.exception.CommentNotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.exception.PostNotFoundException;
 import ru.skillbox.diplom.group25.microservice.post.exception.SubcommentRestrictionException;
@@ -40,6 +43,24 @@ public class CommentService {
   private final PostRepository postRepository;
   private final CommentMapper mapper;
   private final LikeRepository likeRepository;
+  private final KafkaSender kafkaSender;
+
+  @Value(value = "${kafka-topics.notifications}")
+  private String topicNotification;
+
+
+  /**
+   * Отправка нотификации по комментарию
+   * */
+  private void sendNotification(Long authorId, Long userId, NotificationType type, String content){
+
+    String text = content.length() > 20 ? content.substring(0, 20) + "..." : content;
+
+    NotificationInputDto notification = new NotificationInputDto(authorId, userId,
+        type, text);
+
+    kafkaSender.sendMessage(topicNotification, "New post notification", notification);
+  }
 
   /**
    * Создание нового комментария
@@ -51,6 +72,8 @@ public class CommentService {
     Post post = postRepository.findById(id)
         .orElseThrow(PostNotFoundException::new);
 
+    dto.setAuthorId(TokenUtil.getJwtInfo().getId());
+
     //если это комент на комент, проверяем наличие родительского комента в БД и ограничиваем создание коммента на коммент 2 уровнями
     if (dto.getParentId() != null) {
       Comment comment = commentRepository.findById(dto.getParentId())
@@ -58,14 +81,21 @@ public class CommentService {
       if (comment.getParentId() > 0){
         throw new SubcommentRestrictionException();
       }
+
+      //пересчитываем количество подкомментов к коменту, отправляем нотификацию автору комента о новом подкоменте
       comment.setCommentsCount(comment.getCommentsCount() + 1);
+
+      sendNotification(dto.getAuthorId(), comment.getAuthorId(), NotificationType.COMMENT_COMMENT, dto.getCommentText());
     }
-    dto.setAuthorId(TokenUtil.getJwtInfo().getId());
+
     dto.setPostId(id);
     dto.setCommentsCount(0);
 
+    //если это коммент к посту - пересчитываем количество комментов к посту, отправляем нотификацию автору поста о новом коменте
     if (dto.getParentId() == null){
       post.setCommentsCount(post.getCommentsCount() + 1);
+
+      sendNotification(dto.getAuthorId(), post.getAuthorId(), NotificationType.POST_COMMENT, dto.getCommentText());
     }
 
     commentRepository.save(mapper.toEntity(dto));
